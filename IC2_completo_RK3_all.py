@@ -354,7 +354,7 @@ fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 7))
 
 # GRÁFICO 1: RAIO (ax1)
 #PID adaptativo={len(tempo_pid)}
-ax1.set_title(f'Número de pontos: Passo Fixo={len(tempo_fixo)}, Subcycling={len(tempo_sub)}')
+ax1.set_title(f'Número de pontos: Passo Fixo={len(tempo_fixo)}, PID adaptativo={len(tempo_pid)}, Subcycling={len(tempo_sub)}')
 ax1.plot(tempo_fixo, raio_fixo * 1e6, '^-', color=COR_FIXO, linewidth=1, markersize=8,
          label=f'Passo fixo   | Raio_final = {raio_fixo[-1]*1e6} µm')
 ax1.plot(tempo_pid,  raio_pid  * 1e6, '*-', color=COR_PID,  linewidth=1, markersize=8,
