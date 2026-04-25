@@ -25,7 +25,7 @@ print("Escolha qual código deseja executar:\n")
 print("1 - Subcycling")
 print("2 - Passo adaptativo (PID)")
 print("3 - Passo fixo")
-print("4 - Passo fixo + Subcycling")
+print("4 - Passo fixo + Passo adaptativo + Subcycling")
 
 opcao = input("Digite o número da opção: ")
 
