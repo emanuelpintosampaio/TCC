@@ -158,7 +158,7 @@ def f_lento(m, r_final, T_final):
     Dg_novo = Dg_estrela.calcular_Dg_estrela(r_final, T_a_em_k, R_atm)
     vol  = (4 / 3) * np.pi * r_final**3
     C_gota = m / vol
-    print(m)
+    #print(m)
     dm_dt = 4 * np.pi * r_final * Dg_novo * (C_ar - C_gota / (H_novo * R_atm * T_final))
     
     return dm_dt
@@ -224,7 +224,7 @@ M_sub   = 10
 t_mr, raio_rk3_sub, temperatura_rk3_sub, massa_rk3_sub = rk3_multirate_completo(r_i, T_gota_em_k, m_i, tau_f, H_macro, M_sub)
 
 print(massa_rk3_sub[-1])
-"""
+#"""
 # Gráficos
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
