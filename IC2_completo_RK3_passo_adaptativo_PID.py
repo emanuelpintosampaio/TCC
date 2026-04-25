@@ -327,4 +327,5 @@ ax4.legend(fontsize=10)
 ax4.set_yscale('log')
 
 plt.tight_layout()
+#plt.show()
 plt.savefig("grafico_adaptativo.png")
