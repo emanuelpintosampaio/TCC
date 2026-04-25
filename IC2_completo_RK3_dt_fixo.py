@@ -202,7 +202,7 @@ temperatura_rk3 = sol[:, 1]
 massa_rk3       = sol[:, 2]
 massa_final_rk3 = massa_rk3[-1]
 
-print(massa_final_rk3)
+#print(massa_final_rk3)
 
 
 # Gráficos 
