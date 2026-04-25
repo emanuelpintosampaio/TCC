@@ -45,7 +45,6 @@ elif opcao == "5":
 else:
     print("Opção inválida!")
 
-print("\n--- Resultados Gerados ---")
 arquivos = [
     "grafico_subcycling.png",
     "grafico_adaptativo.png",
