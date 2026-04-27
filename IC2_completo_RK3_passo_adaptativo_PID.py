@@ -303,7 +303,7 @@ ax1.legend(fontsize=10)
 ax1.grid(True, alpha=0.3)
 
 # Temperatura
-ax2.plot(tempo, temperatura_rk3 - 273.15, 'o-', color='#FF0000', linewidth=1,
+ax2.plot(tempo, temperatura_rk3 - 273.15, 'o-', color='#0D00FF', linewidth=1,
          markersize=2, label=f'Temperatura final = {temperatura_rk3[-1] - 273.15} °C')
 ax2.set_ylabel('Temperatura da Gota (°C)', fontsize=12)
 ax2.set_xscale('log')
@@ -311,14 +311,14 @@ ax2.legend(fontsize=10)
 ax2.grid(True, alpha=0.3)
 
 # Massa
-ax3.semilogx(tempo, massa_rk3, 'o-', color='#009900', linewidth=1,
+ax3.semilogx(tempo, massa_rk3, 'o-', color='#0D00FF', linewidth=1,
              markersize=2, label=f'Massa final: {massa_final_rk3} mol')
 ax3.set_ylabel('Massa (mol)', fontsize=12)
 ax3.legend(fontsize=10)
 ax3.grid(True, alpha=0.3)
 
 # dt
-ax4.semilogx(tempo, dts, 'o-', color='#6A0DAD', linewidth=1,
+ax4.semilogx(tempo, dts, 'o-', color='#0DFF00', linewidth=1,
               markersize=2, label=f"dt final: {dt_final:e} s")
 ax4.set_xlabel('Tempo (s)', fontsize=12)
 ax4.set_ylabel('Passo de tempo (s)', fontsize=12)
