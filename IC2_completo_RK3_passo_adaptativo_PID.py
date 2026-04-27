@@ -284,7 +284,6 @@ dt_final = dts[-1]
 print(massa_final_rk3)
 
 
-#"""
 # Gráficos
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(12, 10))
@@ -328,5 +327,5 @@ ax4.legend(fontsize=10)
 ax4.set_yscale('log')
 
 plt.tight_layout()
-plt.show()
-#"""
+#plt.show()
+plt.savefig("grafico_dt_adaptativo_completo.png")
