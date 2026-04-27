@@ -164,7 +164,7 @@ raio_simp = r_simplificado(tempo)
 temp_simp = T_simplificado(tempo)
 
 massa_final = massa_rk3[-1]
-print(massa_final)
+#print(massa_final)
 
 # Gráficos
 plt.rcParams['text.usetex'] = False
