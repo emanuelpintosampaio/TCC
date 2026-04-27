@@ -430,7 +430,6 @@ plt.rcParams['text.usetex'] = False
 plt.rcParams['font.size']   = 9
 
 C_FIXO = '#0D00FF'   
-C_PID  = "#73FF00"   
 C_SUB  = "#FF0000" 
 
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(11, 9), sharex=True)
