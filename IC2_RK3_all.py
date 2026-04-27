@@ -309,8 +309,7 @@ H_macro_c = 1e-3
 M_sub_c   = 10
 
 tempo_sub, raio_sub, temp_sub, massa_sub = rk3_multirate_completo_solver(
-    r_i, T_gota_em_k, m_i, tau_f, H_macro_c, M_sub_c
-)
+    r_i, T_gota_em_k, m_i, tau_f, H_macro_c, M_sub_c)
 
 
 # MÉTODOS COM SIMPLIFICAÇÕES EXPONENCIAIS 
@@ -329,19 +328,19 @@ def f_m(t, m):
     return 4 * np.pi * r * Dg_t * (C_ar - C_gota / (H_t * R_atm * T))
 
 # Simplificado 1: RK3 passo fixo 
-def rk3_escalar(f_ode, m0, t):
+def rk3_escalar(f_m, m0, t):
     n  = len(t)
     mv = np.zeros(n);  mv[0] = m0
     for i in range(n - 1):
         dt  = t[i + 1] - t[i];  m_n = mv[i];  t_n = t[i]
-        F1  = f_ode(t_n, m_n);          m1 = m_n + dt * F1
-        F2  = f_ode(t_n + dt, m1);      m2 = (3/4)*m_n + (1/4)*(m1 + dt*F2)
-        F3  = f_ode(t_n + dt/2, m2)
+        F1  = f_m(t_n, m_n);          m1 = m_n + dt * F1
+        F2  = f_m(t_n + dt, m1);      m2 = (3/4)*m_n + (1/4)*(m1 + dt*F2)
+        F3  = f_m(t_n + dt/2, m2)
         mv[i + 1] = (1/3)*m_n + (2/3)*(m2 + dt*F3)
     return mv
 
-dt_simp    = 1e-4
-n_simp     = int(tau_f / dt_simp)
+dt_simp = 1e-4
+n_simp = int(tau_f / dt_simp)
 tempo_simp = np.linspace(0, tau_f, n_simp)
 
 massa_simp_fixo = rk3_escalar(f_m, m_i, tempo_simp)
@@ -350,7 +349,7 @@ temp_simp_fixo  = T_simplificado(tempo_simp)
 
 
 # Simplificado 2: RK3 passo adaptativo PID 
-def rk3_adaptativo_escalar(f_ode, m0, t0, t_final, dt_min, dt_max,
+def rk3_adaptativo_escalar(f_m, m0, t0, t_final, dt_min, dt_max,
                             dt_inicial, tol, K_P, K_I, K_D):
     t_hist = [t0];  m_hist = [m0];  dt_hist = [dt_inicial]
     dt = dt_inicial;  dt_prev = dt_min
@@ -361,9 +360,9 @@ def rk3_adaptativo_escalar(f_ode, m0, t0, t_final, dt_min, dt_max,
         if t_n + dt > t_final:
             dt = t_final - t_n
 
-        F1 = f_ode(t_n, m_n);           m1 = m_n + dt * F1
-        F2 = f_ode(t_n + dt, m1);       m2 = (3/4)*m_n + (1/4)*(m1 + dt*F2)
-        F3 = f_ode(t_n + dt/2, m2)
+        F1 = f_m(t_n, m_n);           m1 = m_n + dt * F1
+        F2 = f_m(t_n + dt, m1);       m2 = (3/4)*m_n + (1/4)*(m1 + dt*F2)
+        F3 = f_m(t_n + dt/2, m2)
         m_next = (1/3)*m_n + (2/3)*(m2 + dt*F3)
 
         e_n = abs(m_next - m_n) / abs(m_next)
@@ -396,10 +395,10 @@ temp_simp_pid = T_simplificado(tempo_spid)
 
 
 # Simplificado 3: RK3 subcycling 
-def rk3_step_esc(f_ode, m, t, dt):
-    k1 = f_ode(t, m);           m1 = m + dt * k1
-    k2 = f_ode(t + dt, m1);     m2 = (3/4)*m + (1/4)*(m1 + dt*k2)
-    k3 = f_ode(t + dt/2, m2)
+def rk3_step_esc(f_m, m, t, dt):
+    k1 = f_m(t, m);           m1 = m + dt * k1
+    k2 = f_m(t + dt, m1);     m2 = (3/4)*m + (1/4)*(m1 + dt*k2)
+    k3 = f_m(t + dt/2, m2)
     return (1/3)*m + (2/3)*(m2 + dt*k3)
 
 def passo_multirate_simp(m_n, t_n, H, M):
@@ -438,25 +437,23 @@ C_SUB  = "#FF0000"
 
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(11, 9), sharex=True)
 
-fig.suptitle(
-    f'Sistema de EDO Completo vs Simplificações Exponenciais',
+fig.suptitle(f'Sistema de EDO Completo vs Simplificações Exponenciais',
     fontsize=11,
-    fontweight='bold'
-)
+    fontweight='bold')
 
 #  Raio 
-ax1.plot(tempo_fixo, raio_fixo * 1e6,      '^-', color=C_FIXO, lw=1, ms=4,
-         label=f'Completo   | Fixo        r={raio_fixo[-1]*1e6} µm')
-ax1.plot(tempo_pid,  raio_pid  * 1e6,      's-', color=C_FIXO,  lw=1, ms=4,
-         label=f'Completo   | PID         r={raio_pid[-1]*1e6} µm')
-ax1.plot(tempo_sub,  raio_sub  * 1e6,      'o-', color=C_FIXO,  lw=1, ms=3,
-         label=f'Completo   | Subcycling  r={raio_sub[-1]*1e6} µm')
-ax1.plot(tempo_simp, raio_simp_fixo * 1e6, '^--', color=C_SUB, lw=1, ms=4, alpha=0.7,
-         label=f'Simplific. | Fixo        r={raio_simp_fixo[-1]*1e6} µm')
-ax1.plot(tempo_spid, raio_simp_pid  * 1e6, 's--', color=C_SUB,  lw=1, ms=4, alpha=0.7,
-         label=f'Simplific. | PID         r={raio_simp_pid[-1]*1e6} µm')
-ax1.plot(tempo_ssub, raio_simp_sub  * 1e6, 'o--', color=C_SUB,  lw=1, ms=3, alpha=0.7,
-         label=f'Simplific. | Subcycling  r={raio_simp_sub[-1]*1e6} µm')
+ax1.plot(tempo_fixo, raio_fixo * 1e6,      '^-', color=C_FIXO, lw=2, ms=4,
+         label=f'Completo   | Fixo: r={raio_fixo[-1]*1e6} µm')
+ax1.plot(tempo_pid,  raio_pid  * 1e6,      's-', color=C_FIXO,  lw=2, ms=4,
+         label=f'Completo   | PID: r={raio_pid[-1]*1e6} µm')
+ax1.plot(tempo_sub,  raio_sub  * 1e6,      'o-', color=C_FIXO,  lw=2, ms=3,
+         label=f'Completo   | Subcycling: r={raio_sub[-1]*1e6} µm')
+ax1.plot(tempo_simp, raio_simp_fixo * 1e6, '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | Fixo: r={raio_simp_fixo[-1]*1e6} µm')
+ax1.plot(tempo_spid, raio_simp_pid  * 1e6, 's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | PID: r={raio_simp_pid[-1]*1e6} µm')
+ax1.plot(tempo_ssub, raio_simp_sub  * 1e6, 'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
+         label=f'Simplific. | Subcycling: r={raio_simp_sub[-1]*1e6} µm')
 ax1.set_ylabel('Raio (µm)')
 ax1.set_xscale('log')
 ax1.ticklabel_format(axis='y', useOffset=False)
@@ -464,36 +461,36 @@ ax1.legend(fontsize=7.5, loc='best', ncol=2)
 ax1.grid(True, alpha=0.3, which='both')
 
 #  Temperatura 
-ax2.plot(tempo_fixo, temp_fixo - 273.15,      '^-', color=C_FIXO, lw=1, ms=4,
-         label=f'Completo   | Fixo        T={temp_fixo[-1]-273.15} °C')
-ax2.plot(tempo_pid,  temp_pid  - 273.15,      's-', color=C_FIXO,  lw=1, ms=4,
-         label=f'Completo   | PID         T={temp_pid[-1]-273.15} °C')
-ax2.plot(tempo_sub,  temp_sub  - 273.15,      'o-', color=C_FIXO,  lw=1, ms=3,
-         label=f'Completo   | Subcycling  T={temp_sub[-1]-273.15} °C')
-ax2.plot(tempo_simp, temp_simp_fixo - 273.15, '^--', color=C_SUB, lw=1, ms=4, alpha=0.7,
-         label=f'Simplific. | Fixo        T={temp_simp_fixo[-1]-273.15} °C')
-ax2.plot(tempo_spid, temp_simp_pid  - 273.15, 's--', color=C_SUB,  lw=1, ms=4, alpha=0.7,
-         label=f'Simplific. | PID         T={temp_simp_pid[-1]-273.15} °C')
-ax2.plot(tempo_ssub, temp_simp_sub  - 273.15, 'o--', color=C_SUB,  lw=1, ms=3, alpha=0.7,
-         label=f'Simplific. | Subcycling  T={temp_simp_sub[-1]-273.15} °C')
+ax2.plot(tempo_fixo, temp_fixo - 273.15,      '^-', color=C_FIXO, lw=2, ms=4,
+         label=f'Completo   | Fixo: T={temp_fixo[-1]-273.15} °C')
+ax2.plot(tempo_pid,  temp_pid  - 273.15,      's-', color=C_FIXO,  lw=2, ms=4,
+         label=f'Completo   | PID: T={temp_pid[-1]-273.15} °C')
+ax2.plot(tempo_sub,  temp_sub  - 273.15,      'o-', color=C_FIXO,  lw=2, ms=3,
+         label=f'Completo   | Subcycling: T={temp_sub[-1]-273.15} °C')
+ax2.plot(tempo_simp, temp_simp_fixo - 273.15, '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | Fixo: T={temp_simp_fixo[-1]-273.15} °C')
+ax2.plot(tempo_spid, temp_simp_pid  - 273.15, 's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | PID: T={temp_simp_pid[-1]-273.15} °C')
+ax2.plot(tempo_ssub, temp_simp_sub  - 273.15, 'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
+         label=f'Simplific. | Subcycling: T={temp_simp_sub[-1]-273.15} °C')
 ax2.set_ylabel('Temperatura (°C)')
 ax2.set_xscale('log')
 ax2.legend(fontsize=7.5, loc='best', ncol=2)
 ax2.grid(True, alpha=0.3, which='both')
 
 #  Massa 
-ax3.plot(tempo_fixo, massa_fixo,       '^-', color=C_FIXO, lw=1, ms=4,
-         label=f'Completo   | Fixo        m={massa_fixo[-1]} mol')
-ax3.plot(tempo_pid,  massa_pid,        's-', color=C_FIXO,  lw=1, ms=4,
-         label=f'Completo   | PID         m={massa_pid[-1]} mol')
-ax3.plot(tempo_sub,  massa_sub,        'o-', color=C_FIXO,  lw=1, ms=3,
-         label=f'Completo   | Subcycling  m={massa_sub[-1]} mol')
-ax3.plot(tempo_simp, massa_simp_fixo,  '^--', color=C_SUB, lw=1, ms=4, alpha=0.7,
-         label=f'Simplific. | Fixo        m={massa_simp_fixo[-1]} mol')
-ax3.plot(tempo_spid, massa_simp_pid,   's--', color=C_SUB,  lw=1, ms=4, alpha=0.7,
-         label=f'Simplific. | PID         m={massa_simp_pid[-1]} mol')
-ax3.plot(tempo_ssub, massa_simp_sub,   'o--', color=C_SUB,  lw=1, ms=3, alpha=0.7,
-         label=f'Simplific. | Subcycling  m={massa_simp_sub[-1]} mol')
+ax3.plot(tempo_fixo, massa_fixo,       '^-', color=C_FIXO, lw=2, ms=4,
+         label=f'Completo   | Fixo: m={massa_fixo[-1]} mol')
+ax3.plot(tempo_pid,  massa_pid,        's-', color=C_FIXO,  lw=2, ms=4,
+         label=f'Completo   | PID: m={massa_pid[-1]} mol')
+ax3.plot(tempo_sub,  massa_sub,        'o-', color=C_FIXO,  lw=2, ms=3,
+         label=f'Completo   | Subcycling: m={massa_sub[-1]} mol')
+ax3.plot(tempo_simp, massa_simp_fixo,  '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | Fixo: m={massa_simp_fixo[-1]} mol')
+ax3.plot(tempo_spid, massa_simp_pid,   's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | PID: m={massa_simp_pid[-1]} mol')
+ax3.plot(tempo_ssub, massa_simp_sub,   'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
+         label=f'Simplific. | Subcycling: m={massa_simp_sub[-1]} mol')
 ax3.set_ylabel('Massa (mol)')
 ax3.set_xlabel('Tempo (s)')
 ax3.set_xscale('log')
@@ -502,4 +499,4 @@ ax3.grid(True, alpha=0.3, which='both')
 
 plt.tight_layout()
 #plt.show()
-plt.savefig("grafico_completo.png")
+plt.savefig("grafico_all.png")
