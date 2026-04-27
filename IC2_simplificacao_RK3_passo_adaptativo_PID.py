@@ -291,5 +291,5 @@ ax4.set_yscale('log')
 
 plt.tight_layout()
 #plt.show()
-plt.savefig("grafico_fixo.png")
+plt.savefig("grafico_adaptativo_simpl.png")
 #"""
