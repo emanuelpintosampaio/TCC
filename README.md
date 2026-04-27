@@ -19,33 +19,55 @@ if not os.path.exists('IC'):
 
 !pip install -q numpy matplotlib
 
-# Menu de escolha
+# Menu Principal
 print("\n")
-print("1 - Subcycling")
-print("2 - Passo adaptativo (PID)")
-print("3 - Passo fixo")
-print("4 - Passo fixo + Passo adaptativo + Subcycling")
-print("5 - RODAR TUDO (Sequencial)\n")
+print("1 - Sistema de EDO completo")
+print("2 - Simplificações exponenciais")
+print("3 - Diferença: Sistema de EDO Completo vs Simplificações Exponenciais")
 
-opcao = input("Digite o número da opção: ")
+opcao_principal = input("Digite o número da opção desejada: ")
 
-if opcao == "1":
-    !python IC2_completo_RK3_subcycling.py
-elif opcao == "2":
-    !python IC2_completo_RK3_passo_adaptativo_PID.py
-elif opcao == "3":
-    !python IC2_completo_RK3_dt_fixo.py
-elif opcao == "4":
-    !python IC2_completo_RK3_all.py
-elif opcao == "5":
-    !python IC2_completo_RK3_subcycling.py
-    !python IC2_completo_RK3_passo_adaptativo_PID.py
-    !python IC2_completo_RK3_dt_fixo.py
-    !python IC2_completo_RK3_all.py
+if opcao_principal == "1":
+    print("\n Sistema de EDO Completo")
+    print("1 - Subcycling")
+    print("2 - Passo adaptativo (PID)")
+    print("3 - Passo fixo\n")
+    
+    opcao_secundaria = input("Digite a opção para EDO Completo: ")
+    if opcao_secundaria == "1":
+        !python IC2_completo_RK3_subcycling.py
+    elif opcao_secundaria == "2":
+        !python IC2_completo_RK3_passo_adaptativo_PID.py
+    elif opcao_secundaria == "3":
+        !python IC2_completo_RK3_dt_fixo.py
+    else:
+        print("Opção inválida!")
+
+elif opcao_principal == "2":
+    print("\n Simplificações Exponenciais")
+    print("1 - Subcycling")
+    print("2 - Passo adaptativo (PID)")
+    print("3 - Passo fixo\n")
+    
+    opcao_secundaria = input("Digite a opção para Simplificações: ")
+    if opcao_secundaria == "1":
+        !python IC2_simplificacao_RK3_subcycling.py
+    elif opcao_secundaria == "2":
+        !python IC2_simplificacao_RK3_passo_adaptativo_PID.py
+    elif opcao_secundaria == "3":
+        !python IC2_simplificacao_RK3_dt_fixo.py
+    else:
+        print("Opção inválida!")
+
+elif opcao_principal == "3":
+    print("\n Executando Comparação (Completo vs Simplificações)")
+    !python IC2_RK3_all.py
+
 else:
-    print("Opção inválida!")
+    print("Opção do menu principal inválida!")
 
-arquivos = [ "grafico_subcycling.png", "grafico_adaptativo.png","grafico_fixo.png", "grafico_completo.png"]
+# Gráficos
+arquivos = ["grafico_subcycling.png","grafico_adaptativo.png","grafico_fixo.png","grafico_completo.png","grafico_all.png"]
 
 for arq in arquivos:
     if os.path.exists(arq):
