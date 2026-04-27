@@ -280,7 +280,7 @@ ax3.legend(fontsize=10)
 ax3.grid(True, alpha=0.3)
 
 # dt
-ax4.semilogx(tempo, dts,'s-', color='#0DFF00',  lw=2, ms=4,
+ax4.semilogx(tempo, dts,'s-', color='#0CB600',  lw=2, ms=4,
                label=f"dt final: {dt_final:e} s")
 ax4.set_xlabel('Tempo (s)', fontsize=12)
 ax4.set_ylabel('Passo de tempo (s)', fontsize=12)
