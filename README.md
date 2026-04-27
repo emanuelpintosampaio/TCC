@@ -72,8 +72,8 @@ while True:
         continue  
 
     # Gráficos
-    arquivos = ["grafico_subcycling.png","grafico_subcycling_simple.png","grafico_adaptativo.png","grafico_adaptativo_simple.png",
-            "grafico_fixo.png","grafico_fixo_simple","grafico_all.png"]
+    arquivos = ["grafico_subcycling_completo.png","grafico_subcycling_simplificacao.png","grafico_dt_adaptativo_completo.png","grafico_dt_adaptativo_simplificacao.png",
+            "grafico_dt_fixo_completo.png","grafico_dt_fixo_simplificacao","grafico_all.png"]
 
     graficos_exibidos = 0
     for arq in arquivos:
