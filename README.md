@@ -67,7 +67,8 @@ else:
     print("Opção do menu principal inválida!")
 
 # Gráficos
-arquivos = ["grafico_subcycling.png","grafico_adaptativo.png","grafico_fixo.png","grafico_completo.png","grafico_all.png"]
+arquivos = ["grafico_subcycling.png","grafico_subcycling_simple.png","grafico_adaptativo.png","grafico_adaptativo_simple.png",
+            "grafico_fixo.png","grafico_fixo_simple","grafico_all.png"]
 
 for arq in arquivos:
     if os.path.exists(arq):
