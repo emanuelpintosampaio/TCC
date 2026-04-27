@@ -281,7 +281,7 @@ massa_final_rk3 = massa_rk3[-1]
 dt_final = dts[-1]
 
 
-print(massa_final_rk3)
+#print(massa_final_rk3)
 
 
 # Gráficos
