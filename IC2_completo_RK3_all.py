@@ -502,4 +502,4 @@ ax3.grid(True, alpha=0.3, which='both')
 
 plt.tight_layout()
 #plt.show()
-plt.savefig("completo.png")
+plt.savefig("grafico_completo.png")
