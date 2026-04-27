@@ -243,7 +243,7 @@ dt_final = dts[-1]
 raio_simp = r_simplificado(tempo)
 temp_simp = T_simplificado(tempo)
 
-print(massa_final)
+#print(massa_final)
 
 
 
