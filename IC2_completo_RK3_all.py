@@ -501,4 +501,5 @@ ax3.legend(fontsize=7.5, loc='best', ncol=2)
 ax3.grid(True, alpha=0.3, which='both')
 
 plt.tight_layout()
-plt.show()
+#plt.show()
+plt.savefig("completo.png")
