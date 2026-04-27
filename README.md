@@ -11,7 +11,8 @@ Você pode rodar este projeto diretamente no Google Colab, sem instalar nada loc
 
 ```python
 import os
-from IPython.display import Image, display
+import time
+from IPython.display import Image, display, clear_output
 
 if not os.path.exists('IC'):
     !git clone https://github.com/offemanuel/IC.git
@@ -65,16 +66,22 @@ while True:
     
     else:
         print("Opção do menu principal inválida!")
-    
+        continue  
+
     # Gráficos
     arquivos = ["grafico_subcycling.png","grafico_subcycling_simple.png","grafico_adaptativo.png","grafico_adaptativo_simple.png",
             "grafico_fixo.png","grafico_fixo_simple","grafico_all.png"]
-    
+
+    graficos_exibidos = 0
     for arq in arquivos:
         if os.path.exists(arq):
             print(f"Exibindo: {arq}")
             display(Image(arq))
-            
+            graficos_exibidos += 1
+
+    # Gráficos
+    if graficos_exibidos > 0:
+        time.sleep(3)  
     # Condição de parada
     continuar = input("\nDeseja fazer outra simulação? (s/n): ").strip().lower()
     if continuar != 's':
