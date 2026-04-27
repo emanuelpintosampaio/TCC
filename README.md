@@ -79,9 +79,9 @@ while True:
             display(Image(arq))
             graficos_exibidos += 1
 
-    # Gráficos
     if graficos_exibidos > 0:
-        time.sleep(3)  
+        time.sleep(3)
+
     # Condição de parada
     continuar = input("\nDeseja fazer outra simulação? (s/n): ").strip().lower()
     if continuar != 's':
