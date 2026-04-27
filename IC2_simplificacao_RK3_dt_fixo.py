@@ -202,7 +202,8 @@ ax3.legend(fontsize=10)
 ax3.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.show()
+#plt.show()
+plt.savefig("grafico_fixo.png")
 #"""
 
 
