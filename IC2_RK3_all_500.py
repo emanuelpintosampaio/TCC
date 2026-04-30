@@ -445,13 +445,13 @@ ax1.plot(tempo_fixo, raio_fixo * 1e6,'^-', color=C_FIXO, lw=2, ms=4,
 #ax1.plot(tempo_pid,  raio_pid  * 1e6,'s-', color=C_FIXO,  lw=2, ms=4,
 #         label=f'Completo   | PID: r={raio_pid[-1]*1e6} µm')
 ax1.plot(tempo_sub,  raio_sub  * 1e6,'o-', color=C_FIXO,  lw=2, ms=3,
-         label=f'Completo   | Subcycling: r={raio_sub[-1]*1e6} µm')
+         label=f'Completo   | subpassos: r={raio_sub[-1]*1e6} µm')
 ax1.plot(tempo_simp, raio_simp_fixo * 1e6, '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
          label=f'Simplific. | Fixo: r={raio_simp_fixo[-1]*1e6} µm')
 #ax1.plot(tempo_spid, raio_simp_pid  * 1e6, 's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
 #         label=f'Simplific. | PID: r={raio_simp_pid[-1]*1e6} µm')
 ax1.plot(tempo_ssub, raio_simp_sub  * 1e6, 'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
-         label=f'Simplific. | Subcycling: r={raio_simp_sub[-1]*1e6} µm')
+         label=f'Simplific. | subpassos: r={raio_simp_sub[-1]*1e6} µm')
 ax1.set_ylabel('Raio (µm)')
 ax1.set_xscale('log')
 ax1.ticklabel_format(axis='y', useOffset=False)
@@ -464,13 +464,13 @@ ax2.plot(tempo_fixo, temp_fixo - 273.15,'^-', color=C_FIXO, lw=2, ms=4,
 #ax2.plot(tempo_pid,  temp_pid  - 273.15,'s-', color=C_FIXO,  lw=2, ms=4,
 #         label=f'Completo   | PID: T={temp_pid[-1]-273.15} °C')
 ax2.plot(tempo_sub,  temp_sub  - 273.15,'o-', color=C_FIXO,  lw=2, ms=3,
-         label=f'Completo   | Subcycling: T={temp_sub[-1]-273.15} °C')
+         label=f'Completo   | subpassos: T={temp_sub[-1]-273.15} °C')
 ax2.plot(tempo_simp, temp_simp_fixo - 273.15, '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
          label=f'Simplific. | Fixo: T={temp_simp_fixo[-1]-273.15} °C')
 #ax2.plot(tempo_spid, temp_simp_pid  - 273.15, 's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
 #         label=f'Simplific. | PID: T={temp_simp_pid[-1]-273.15} °C')
 ax2.plot(tempo_ssub, temp_simp_sub  - 273.15, 'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
-         label=f'Simplific. | Subcycling: T={temp_simp_sub[-1]-273.15} °C')
+         label=f'Simplific. | subpassos: T={temp_simp_sub[-1]-273.15} °C')
 ax2.set_ylabel('Temperatura (°C)')
 ax2.set_xscale('log')
 ax2.legend(fontsize=7.5, loc='best', ncol=2)
@@ -482,13 +482,13 @@ ax3.plot(tempo_fixo, massa_fixo,'^-', color=C_FIXO, lw=2, ms=4,
 #ax3.plot(tempo_pid,  massa_pid,'s-', color=C_FIXO,  lw=2, ms=4,
 #         label=f'Completo   | PID: m={massa_pid[-1]} mol')
 ax3.plot(tempo_sub,  massa_sub,'o-', color=C_FIXO,  lw=2, ms=3,
-         label=f'Completo   | Subcycling: m={massa_sub[-1]} mol')
+         label=f'Completo   | subpassos: m={massa_sub[-1]} mol')
 ax3.plot(tempo_simp, massa_simp_fixo,  '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
          label=f'Simplific. | Fixo: m={massa_simp_fixo[-1]} mol')
 #ax3.plot(tempo_spid, massa_simp_pid,   's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
 #         label=f'Simplific. | PID: m={massa_simp_pid[-1]} mol')
 ax3.plot(tempo_ssub, massa_simp_sub,   'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
-         label=f'Simplific. | Subcycling: m={massa_simp_sub[-1]} mol')
+         label=f'Simplific. | subpassos: m={massa_simp_sub[-1]} mol')
 ax3.set_ylabel('Massa (mol)')
 ax3.set_xlabel('Tempo (s)')
 ax3.set_xscale('log')
