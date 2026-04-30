@@ -191,7 +191,6 @@ plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
  
 fig.suptitle(
-    f'RK3 Subpassos\n'
     f'H_macro = {H_macro:.0e} s | M_sub = {M_sub} | {len(t_mr)} pontos',
     fontsize=13
 )
