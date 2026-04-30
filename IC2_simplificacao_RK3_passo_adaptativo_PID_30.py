@@ -251,7 +251,7 @@ temp_simp = T_simplificado(tempo)
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(12, 10))
 
-fig.suptitle(f'RK3 Passo Adaptativo\n',
+fig.suptitle(
     f'{len(tempo)} pontos',
     fontsize=13
 )
