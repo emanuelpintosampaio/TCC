@@ -170,8 +170,7 @@ massa_final = massa_rk3[-1]
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
 
-fig.suptitle(
-    #f'r(t), T(t) e m(t) - RK3 dt fixo\n'
+fig.suptitle(f'RK3 Passo Fixo\n',
     f'dt_fixo = {dt_fixo:.0e} s | {len(tempo)} pontos',
     fontsize=13
 )
