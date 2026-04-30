@@ -221,6 +221,6 @@ ax3.grid(True, alpha=0.3)
  
 plt.tight_layout()
 #plt.show()
-plt.savefig("grafico_subcycling_simplificacao_500.png")
+plt.savefig("grafico_subpassos_simplificacao_500.png")
 
 
