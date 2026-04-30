@@ -422,9 +422,11 @@ tempo_ssub, massa_simp_sub = rk3_multirate_simp(m_i, tau_f, H_macro_s, M_sub_s)
 raio_simp_sub = r_simplificado(tempo_ssub)
 temp_simp_sub = T_simplificado(tempo_ssub)
 
+#PID: {len(tempo_pid)}
+#PID: {len(tempo_spid)}
 print("Pontos:\n"
-    f"  Completo     | Fixo: {len(tempo_fixo)}  PID: {len(tempo_pid)}  Sub: {len(tempo_sub)}\n"
-    f"  Simplificado | Fixo: {len(tempo_simp)}  PID: {len(tempo_spid)}  Sub: {len(tempo_ssub)}")
+    f"  Completo     | Fixo: {len(tempo_fixo)}    Sub: {len(tempo_sub)}\n"
+    f"  Simplificado | Fixo: {len(tempo_simp)}    Sub: {len(tempo_ssub)}")
 # Gráficos
 plt.rcParams['text.usetex'] = False
 plt.rcParams['font.size']   = 9
