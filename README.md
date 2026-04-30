@@ -23,57 +23,82 @@ if not os.path.exists('IC'):
 
 !pip install -q numpy matplotlib
 
-# Menu principal
+# Menu 
 while True:
+    print("ESCOLHA O RAIO DA GOTA PARA A SIMULAÇÃO:")
+    print("1 - 30 µm")
+    print("2 - 500 µm")
+    
+    opcao_raio = input("\nDigite o número da opção desejada: ").strip()
+    
+    if opcao_raio == "1":
+        raio = "30"
+        print(f"\nRaio selecionado: {raio} µm")
+    elif opcao_raio == "2":
+        raio = "500"
+        print(f"\nRaio selecionado: {raio} µm")
+    else:
+        print("Opção de raio inválida! Tente novamente.\n")
+        continue
+    
+    time.sleep(1)
     print("1 - Sistema de EDO completo")
     print("2 - Simplificações exponenciais")
     print("3 - Diferença: Sistema de EDO Completo vs Simplificações Exponenciais")
     
-    opcao_principal = input("\nDigite o número da opção desejada: ")
+    opcao_principal = input("\nDigite o número da opção desejada: ").strip()
     
     if opcao_principal == "1":
-        print("\n Sistema de EDO Completo")
-        print("1 - Subcycling")
-        print("2 - Passo adaptativo (PID)")
-        print("3 - Passo fixo\n")
+        print(f"\n Sistema de EDO Completo | Raio: {raio} µm")
+        print("1 - Subpassos")
+        #print("3 - Passo adaptativo (PID)")
+        print("2 - Passo fixo\n")
         
-        opcao_secundaria = input("Digite a opção para EDO Completo: ")
+        opcao_secundaria = input("Digite a opção para EDO Completo: ").strip()
         if opcao_secundaria == "1":
-            !python IC2_completo_RK3_subcycling.py
-        elif opcao_secundaria == "2":
-            !python IC2_completo_RK3_passo_adaptativo_PID.py
+            !python IC2_completo_RK3_subpassos_{raio}.py
         elif opcao_secundaria == "3":
-            !python IC2_completo_RK3_dt_fixo.py
+            !python IC2_completo_RK3_passo_adaptativo_PID_{raio}.py
+        elif opcao_secundaria == "2":
+            !python IC2_completo_RK3_dt_fixo_{raio}.py
         else:
             print("Opção inválida!")
     
     elif opcao_principal == "2":
-        print("\n Simplificações Exponenciais")
-        print("1 - Subcycling")
-        print("2 - Passo adaptativo (PID)")
-        print("3 - Passo fixo\n")
+        print(f"\n Simplificações Exponenciais | Raio: {raio} µm")
+        print("1 - Subpassos")
+        #print("3 - Passo adaptativo (PID)")
+        print("2 - Passo fixo\n")
         
-        opcao_secundaria = input("Digite a opção para Simplificações: ")
+        opcao_secundaria = input("Digite a opção para Simplificações: ").strip()
         if opcao_secundaria == "1":
-            !python IC2_simplificacao_RK3_subcycling.py
-        elif opcao_secundaria == "2":
-            !python IC2_simplificacao_RK3_passo_adaptativo_PID.py
+            !python IC2_simplificacao_RK3_subpassos_{raio}.py
         elif opcao_secundaria == "3":
-            !python IC2_simplificacao_RK3_dt_fixo.py
+            !python IC2_simplificacao_RK3_passo_adaptativo_PID_{raio}.py
+        elif opcao_secundaria == "2":
+            !python IC2_simplificacao_RK3_dt_fixo_{raio}.py
         else:
             print("Opção inválida!")
     
     elif opcao_principal == "3":
-        print("\n Executando Comparação (Completo vs Simplificações)...")
-        !python IC2_RK3_all.py
+        print(f"\n Executando Comparação (Completo vs Simplificações) | Raio: {raio} µm")
+        !python IC2_RK3_all_{raio}.py
     
     else:
         print("Opção do menu principal inválida!")
         continue  
 
-    # Gráficos
-    arquivos = ["grafico_subcycling_completo.png","grafico_subcycling_simplificacao.png","grafico_dt_adaptativo_completo.png","grafico_dt_adaptativo_simplificacao.png",
-            "grafico_dt_fixo_completo.png","grafico_dt_fixo_simplificacao","grafico_all.png"]
+    print("BUSCANDO GRÁFICOS GERADOS...")
+    
+    arquivos = [
+        f"grafico_subpassos_completo_{raio}.png",
+        f"grafico_subpassos_simplificacao_{raio}.png",
+        f"grafico_dt_adaptativo_completo_{raio}.png",
+        f"grafico_dt_adaptativo_simplificacao_{raio}.png",
+        f"grafico_dt_fixo_completo_{raio}.png",
+        f"grafico_dt_fixo_simplificacao_{raio}.png",
+        f"grafico_all_{raio}.png"
+    ]
 
     graficos_exibidos = 0
     for arq in arquivos:
@@ -82,14 +107,16 @@ while True:
             display(Image(arq))
             graficos_exibidos += 1
 
-    if graficos_exibidos > 0:
+    if graficos_exibidos == 0:
+        print("Nenhum gráfico encontrado para exibir.")
+    else:
         time.sleep(3)
 
-    # Condição de parada
     continuar = input("\nDeseja fazer outra simulação? (s/n): ").strip().lower()
     if continuar != 's':
         print("\nEncerrando o programa...")
         break
+    
 ```
 
 ---
