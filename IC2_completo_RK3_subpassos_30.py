@@ -71,17 +71,13 @@ Delta_T = Delta_T_contas.calculate_delta_T(
     beta=code_beta.calcular_beta(e_sat_val, T_a_em_k, L_v_val, M_H2O, D_linha_w_val, R, k_linha_a_val),
     b=240.97,
     exp_y=code_exp_y.calcular_exp_y(M_H2O, sigma_s_val, T_a_em_k, rho_w, R, v_ion, Phi_s_val, m_s_val, r_i, rho_s_val, M_NaCl),
-    f=f
-)
+    f=f)
 rho_v_val = rho_v.calcular_rho_v(f, M_H2O, e_sat_val, R, T_a_em_k)
 
-rho_vr_val = rho_vr.calcular_rho_vr(
-    M_H2O,
+rho_vr_val = rho_vr.calcular_rho_vr(M_H2O,
     e_sat_esp.calcular_esat(T_a),
     code_exp_y.calcular_exp_y(M_H2O, sigma_s_val, T_a_em_k, rho_w, R, v_ion, Phi_s_val, m_s_val, r_i, rho_s_val, M_NaCl),
-    R,
-    T_a_em_k
-)
+    R,T_a_em_k)
 
 partial_rho_vr_val = partial_rho_vr.calcular_partial_rho_vr(T_a_em_k, rho_vr_val, a=17.502, b=240.97)
 
@@ -109,131 +105,131 @@ r_eq = metodo_newton.Newton(zeta, dzeta_dr, r0, 1e-6, 100)
 
 tau_r = calcular_tau_r(f, M_H2O, sigma_s_val, R, T_a_em_k, rho_w, r_i, rho_s_val, m_s_val, v_ion, Phi_s_val, M_NaCl, D_linha_w_val, e_sat_val, L_v_val, k_linha_a_val, r_eq)[1]
 
-
 # Calcula propriedades termodinâmicas que dependem de r e T
 def _grandezas_dinamicas(r, T):
-    rho_ww_novo    = m_s.calcular_rho_ww(T - 273.15)
-    m_w_novo       = rho_s.calcular_massa_agua(r, rho_ww_novo)
-    sigma_s_novo   = sigma_s.calculate_sigma_s(T - 273.15, m_s_val, m_w_novo)
-    Phi_s_novo     = Phi_s.calcular_phi_s(m_s_val, M_NaCl, m_w_novo)
+    rho_ww_novo = m_s.calcular_rho_ww(T - 273.15)
+    m_w_novo = rho_s.calcular_massa_agua(r, rho_ww_novo)
+    sigma_s_novo = sigma_s.calculate_sigma_s(T - 273.15, m_s_val, m_w_novo)
+    Phi_s_novo = Phi_s.calcular_phi_s(m_s_val, M_NaCl, m_w_novo)
     D_linha_w_novo = D_linha_w.calculate_Dw_prime(T, R, P, r, M_H2O, T0, P0, alpha_c=0.036, Delta_w=8e-8)
-    L_v_novo       = L_v.calcular_lv(T - 273.15)
+    L_v_novo = L_v.calcular_lv(T - 273.15)
     k_linha_a_novo = k_linha_a.calculate_K_linha_a(T - 273.15, T, P, r, R, T0, P0, M_a=28.9644e-3, alpha_T=0.7, delta_T=2.16e-7, c_pa=1.006e3)
-    rho_vr_novo    = rho_vr.calcular_rho_vr(
-        M_H2O,
+    rho_vr_novo = rho_vr.calcular_rho_vr(M_H2O,
         e_sat_esp.calcular_esat(T - 273.15),
         code_exp_y.calcular_exp_y(M_H2O, sigma_s_novo, T_a_em_k, rho_w, R, v_ion, Phi_s_novo, m_s_val, r, rho_s_val, M_NaCl),
-        R, T_a_em_k
-    )
+        R, T_a_em_k)
 
-    # dr/dt 
-    Y    = (2 * M_H2O * sigma_s_novo / (R * T_a_em_k * rho_w * r)) \
+    Y = (2 * M_H2O * sigma_s_novo / (R * T_a_em_k * rho_w * r)) \
          - (v_ion * Phi_s_novo * m_s_val * (M_H2O / M_NaCl) / (m_w_novo - m_s_val))
     den1 = rho_s_val * R * T_a_em_k / (D_linha_w_novo * M_H2O * e_sat_val)
     den2 = rho_s_val * L_v_novo / (k_linha_a_novo * T_a_em_k) * (L_v_novo * M_H2O / (R * T_a_em_k) - 1)
-    den  = den1 + den2
-    dr_dt = ((f - 1) - Y) / (r * den)
+    den = den1 + den2
 
-    # dT/dt 
-    
     return k_linha_a_novo, D_linha_w_novo, L_v_novo, rho_vr_novo, Y, den
 
-# Sistema rápido: m_fixo é a massa congelada durante o subcycling
-def f_rapido(y_rapido, m_fixo):
-    r, T = y_rapido
-    k_linha_a_novo, D_linha_w_novo, L_v_novo, rho_vr_novo, Y, den = _grandezas_dinamicas(r, T)
-    
-    # dr/dt 
+# Sistema RÁPIDO: apenas T  
+# r fica congelado durante os subpassos
+def f_rapido(t, T, r_fixo):
+    k_linha_a_novo, D_linha_w_novo, L_v_novo, rho_vr_novo, Y, den = _grandezas_dinamicas(r_fixo, T)
+    dT_dt = (3 / (rho_s_val * c_ps * r_fixo**2)) * (k_linha_a_novo * (T_a_em_k - T) + L_v_novo * D_linha_w_novo * (rho_v_val - rho_vr_novo))
+    return dT_dt
+
+# Sistema LENTO: r e m juntos  
+# usa T já atualizado pelos subpassos
+def f_lento(t, y_lento, T_final):
+    r, m = y_lento
+    k_linha_a_novo, D_linha_w_novo, L_v_novo, rho_vr_novo, Y, den = _grandezas_dinamicas(r, T_final)
     dr_dt = ((f - 1) - Y) / (r * den)
-    
-    # dT/dt 
-    dT_dt = (3 / (rho_s_val * c_ps * r**2)) * (
-        k_linha_a_novo * (T_a_em_k - T) + L_v_novo * D_linha_w_novo * (rho_v_val - rho_vr_novo))
-    
-    return np.array([dr_dt, dT_dt])
-
-# Sistema lento: Usa o raio e temperatura atualizados ao fim do ciclo micro
-def f_lento(m, r_final, T_final):
-    H_novo  = H_estrela.calcular_H_estrela(T_final, S)
-    Dg_novo = Dg_estrela.calcular_Dg_estrela(r_final, T_a_em_k, R_atm)
-    vol  = (4 / 3) * np.pi * r_final**3
+    H_novo = H_estrela.calcular_H_estrela(T_final, S)
+    Dg_novo = Dg_estrela.calcular_Dg_estrela(r, T_a_em_k, R_atm)
+    vol = (4 / 3) * np.pi * r**3
     C_gota = m / vol
-    #print(m)
-    dm_dt = 4 * np.pi * r_final * Dg_novo * (C_ar - C_gota / (H_novo * R_atm * T_final))
-    
-    return dm_dt
+    dm_dt = 4 * np.pi * r * Dg_novo * (C_ar - C_gota / (H_novo * R_atm * T_final))
+    return np.array([dr_dt, dm_dt])
 
-# Passo RK3 para vetores
-def rk3_step(f, y, dt, *args):
-    k1 = f(y, *args)
+# RK3 escalar (para T) 
+def rk3_step_scalar(f, t, y, dt, *args):
+    k1 = f(t, y, *args)
     y1 = y + dt * k1
-    
-    k2 = f(y1, *args)
+    k2 = f(t + dt, y1, *args)
     y2 = (3/4) * y + (1/4) * (y1 + dt * k2)
-    
-    k3 = f(y2, *args)
-    y_next = (1/3) * y + (2/3) * (y2 + dt * k3)
-    return y_next
+    k3 = f(t + dt/2, y2, *args)
+    return (1/3) * y + (2/3) * (y2 + dt * k3)
 
-# Algoritmo de Subcycling (Multirate)
-def passo_multirate(r_n, T_n, m_n, H, M):
-    #Executa um passo macro H com M sub-passos micro h.
-    h = H / M
-    
-    # 1. SUBCYCLING (r, T) - Avanço rápido
-    y_rapido = np.array([r_n, T_n])
-    for _ in range(M):
-        y_rapido = rk3_step(f_rapido, y_rapido, h, m_n) # m_n fica fixo aqui
-    
-    r_new, T_new = y_rapido
-    
-    # 2. PASSO MACRO (m) - Avanço lento
-    m_new = rk3_step(f_lento, m_n, H, r_new, T_new)
-    
+# RK3 vetorial (para [r, m]) 
+def rk3_step(f, t, y, dt, *args):
+    k1 = f(t, y, *args)
+    y1 = y + dt * k1
+    k2 = f(t + dt, y1, *args)
+    y2 = (3/4) * y + (1/4) * (y1 + dt * k2)
+    k3 = f(t + dt/2, y2, *args)
+    return (1/3) * y + (2/3) * (y2 + dt * k3)
+
+
+# Algoritmo multiescala:
+def passo_multiescala(r_n, T_n, m_n, t_n, H, M):
+    dt = H / M
+
+    # 1. Subpassos rápidos: avança T com r fixo
+    T = T_n
+    for j in range(M):
+        t_sub = t_n + j * dt          
+        T = rk3_step_scalar(f_rapido, t_sub, T, dt, r_n)
+
+    T_new = T
+
+    # 2. Passo macro lento: avança [r, m] com T já atualizado
+    y_lento = np.array([r_n, m_n])
+    y_lento_new = rk3_step(f_lento, t_n, y_lento, H, T_new)
+    r_new, m_new = y_lento_new
+
     return r_new, T_new, m_new
 
-def rk3_multirate_completo(r0, T0, m0, t_final, H, M):
-    t_list, r_list, T_list, m_list = [0.0], [r0], [T0], [m0]
-    t, r, T, m = 0.0, r0, T0, m0
-    
+
+def rk3_multiescala_completo(r0, T0, m0, t_final, H, M):
+    t_list, r_list, T_list, m_list = [0], [r0], [T0], [m0]
+    t, r, T, m = 0, r0, T0, m0
+
     while t < t_final:
         dt_macro = min(H, t_final - t)
         if dt_macro < 1e-15: break
-        
-        r, T, m = passo_multirate(r, T, m, dt_macro, M)
+
+        r, T, m = passo_multiescala(r, T, m, t, dt_macro, M) 
         t += dt_macro
-        
+
         t_list.append(t)
         r_list.append(r)
         T_list.append(T)
         m_list.append(m)
-        
+
     return np.array(t_list), np.array(r_list), np.array(T_list), np.array(m_list)
+
 
 # Condições iniciais para massa
 vol_i = (4/3) * np.pi * r_i**3
 m_i = vol_i * C_ar * H_estrela.calcular_H_estrela(T_gota_em_k, S) * R_atm * T_gota_em_k
 
-# Passo da Massa
-H_macro = 1e-3 
+# Passo macro (lento: r e m)
+dt_macro = 1e-3
 
-# sub-passos para r e T dentro de cada passo de m
-M_sub   = 10    
+# Número de subpassos rápidos (T) dentro de cada passo macro
+M_sub   = 10
 
-# Solução com RK3 por controle de subpassos
-t_mr, raio_rk3_sub, temperatura_rk3_sub, massa_rk3_sub = rk3_multirate_completo(r_i, T_gota_em_k, m_i, tau_f, H_macro, M_sub)
+dt_micro = dt_macro/M_sub
 
-#print(massa_rk3_sub[-1])
+# Solução com RK3 multiescala
+t_mr, raio_rk3_sub, temperatura_rk3_sub, massa_rk3_sub = rk3_multiescala_completo(r_i, T_gota_em_k, m_i, tau_f, dt_macro, M_sub)
+
 
 # Gráficos
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
- 
+
+
 fig.suptitle(
-    f'H_macro = {H_macro:.0e} s | M_sub = {M_sub} | {len(t_mr)} pontos',
-    fontsize=13
-)
- 
+    f'dt_macro = {dt_macro:.0e} s | M_sub = {M_sub} | dt_micro = {dt_micro:.0e} s | {len(t_mr)} pontos',
+    fontsize=13)
+
 # Raio
 ax1.plot(t_mr, raio_rk3_sub * 1e6, 'o-', color='#0D00FF', linewidth=2, markersize=4,
          label=f'r_final = {raio_rk3_sub[-1] * 1e6} µm')
@@ -241,7 +237,7 @@ ax1.set_ylabel('Raio da Gota (µm)', fontsize=12)
 ax1.set_xscale('log')
 ax1.legend(fontsize=10)
 ax1.grid(True, alpha=0.3)
- 
+
 # Temperatura
 ax2.plot(t_mr, temperatura_rk3_sub - 273.15, 'o-', color='#0D00FF', linewidth=2,
          markersize=4, label=f'T_final = {temperatura_rk3_sub[-1] - 273.15} °C')
@@ -249,7 +245,7 @@ ax2.set_ylabel('Temperatura da Gota (°C)', fontsize=12)
 ax2.set_xscale('log')
 ax2.legend(fontsize=10)
 ax2.grid(True, alpha=0.3)
- 
+
 # Massa
 ax3.semilogx(t_mr, massa_rk3_sub, 'o-', color='#0D00FF', linewidth=2,
              markersize=4, label=f'Massa final: {massa_rk3_sub[-1]} mol')
