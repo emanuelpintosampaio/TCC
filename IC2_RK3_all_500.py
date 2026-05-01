@@ -35,6 +35,7 @@ T0 = 273.15
 P0 = 1013.25
 c_ps = 4000        # Calor específico da spray
 
+
 def func(U_f):
     const = (2 * r_i**2 * g) / (9 * v_ar) * ((rho_w / rho_ar) - 1)
     a = 1 + 0.158 * ((2 * r_i * U_f / v_ar) ** (2 / 3))
@@ -70,17 +71,13 @@ Delta_T = Delta_T_contas.calculate_delta_T(
     beta=code_beta.calcular_beta(e_sat_val, T_a_em_k, L_v_val, M_H2O, D_linha_w_val, R, k_linha_a_val),
     b=240.97,
     exp_y=code_exp_y.calcular_exp_y(M_H2O, sigma_s_val, T_a_em_k, rho_w, R, v_ion, Phi_s_val, m_s_val, r_i, rho_s_val, M_NaCl),
-    f=f
-)
+    f=f)
 rho_v_val = rho_v.calcular_rho_v(f, M_H2O, e_sat_val, R, T_a_em_k)
 
-rho_vr_val = rho_vr.calcular_rho_vr(
-    M_H2O,
+rho_vr_val = rho_vr.calcular_rho_vr(M_H2O,
     e_sat_esp.calcular_esat(T_a),
     code_exp_y.calcular_exp_y(M_H2O, sigma_s_val, T_a_em_k, rho_w, R, v_ion, Phi_s_val, m_s_val, r_i, rho_s_val, M_NaCl),
-    R,
-    T_a_em_k
-)
+    R,T_a_em_k)
 
 partial_rho_vr_val = partial_rho_vr.calcular_partial_rho_vr(T_a_em_k, rho_vr_val, a=17.502, b=240.97)
 
@@ -103,10 +100,10 @@ def dzeta_dr(r_i):
     return term1 - term2
 
 r0 = (1.1) * (3 * m_s_val / (4 * np.pi * rho_s_val)) ** (1 / 3)
+
 r_eq = metodo_newton.Newton(zeta, dzeta_dr, r0, 1e-6, 100)
 
 tau_r = calcular_tau_r(f, M_H2O, sigma_s_val, R, T_a_em_k, rho_w, r_i, rho_s_val, m_s_val, v_ion, Phi_s_val, M_NaCl, D_linha_w_val, e_sat_val, L_v_val, k_linha_a_val, r_eq)[1]
-
 
 # Condição inicial da massa 
 vol_i = (4 / 3) * np.pi * r_i**3
@@ -237,78 +234,109 @@ massa_pid = sol_pid[:, 2]
 
 # Completo 3: RK3 subcycling
 def _grandezas_dinamicas(r, T):
-    rho_ww_novo    = m_s.calcular_rho_ww(T - 273.15)
-    m_w_novo       = rho_s.calcular_massa_agua(r, rho_ww_novo)
-    sigma_s_novo   = sigma_s.calculate_sigma_s(T - 273.15, m_s_val, m_w_novo)
-    Phi_s_novo     = Phi_s.calcular_phi_s(m_s_val, M_NaCl, m_w_novo)
-    D_linha_w_novo = D_linha_w.calculate_Dw_prime(T, R, P, r, M_H2O, T0, P0,
-                                                   alpha_c=0.036, Delta_w=8e-8)
-    L_v_novo       = L_v.calcular_lv(T - 273.15)
-    k_linha_a_novo = k_linha_a.calculate_K_linha_a(T - 273.15, T, P, r, R, T0, P0,
-                                                    M_a=28.9644e-3, alpha_T=0.7,
-                                                    delta_T=2.16e-7, c_pa=1.006e3)
-    rho_vr_novo    = rho_vr.calcular_rho_vr(
-        M_H2O,
+    rho_ww_novo = m_s.calcular_rho_ww(T - 273.15)
+    m_w_novo = rho_s.calcular_massa_agua(r, rho_ww_novo)
+    sigma_s_novo = sigma_s.calculate_sigma_s(T - 273.15, m_s_val, m_w_novo)
+    Phi_s_novo = Phi_s.calcular_phi_s(m_s_val, M_NaCl, m_w_novo)
+    D_linha_w_novo = D_linha_w.calculate_Dw_prime(T, R, P, r, M_H2O, T0, P0, alpha_c=0.036, Delta_w=8e-8)
+    L_v_novo = L_v.calcular_lv(T - 273.15)
+    k_linha_a_novo = k_linha_a.calculate_K_linha_a(T - 273.15, T, P, r, R, T0, P0, M_a=28.9644e-3, alpha_T=0.7, delta_T=2.16e-7, c_pa=1.006e3)
+    rho_vr_novo = rho_vr.calcular_rho_vr(M_H2O,
         e_sat_esp.calcular_esat(T - 273.15),
-        code_exp_y.calcular_exp_y(M_H2O, sigma_s_novo, T_a_em_k, rho_w, R,
-                                   v_ion, Phi_s_novo, m_s_val, r, rho_s_val, M_NaCl),
+        code_exp_y.calcular_exp_y(M_H2O, sigma_s_novo, T_a_em_k, rho_w, R, v_ion, Phi_s_novo, m_s_val, r, rho_s_val, M_NaCl),
         R, T_a_em_k)
-    
-    Y    = ((2 * M_H2O * sigma_s_novo / (R * T_a_em_k * rho_w * r))
-            - (v_ion * Phi_s_novo * m_s_val * (M_H2O / M_NaCl) / (m_w_novo - m_s_val)))
+
+    Y = (2 * M_H2O * sigma_s_novo / (R * T_a_em_k * rho_w * r)) \
+         - (v_ion * Phi_s_novo * m_s_val * (M_H2O / M_NaCl) / (m_w_novo - m_s_val))
     den1 = rho_s_val * R * T_a_em_k / (D_linha_w_novo * M_H2O * e_sat_val)
-    den2 = (rho_s_val * L_v_novo / (k_linha_a_novo * T_a_em_k)
-            * (L_v_novo * M_H2O / (R * T_a_em_k) - 1))
-    den  = den1 + den2
+    den2 = rho_s_val * L_v_novo / (k_linha_a_novo * T_a_em_k) * (L_v_novo * M_H2O / (R * T_a_em_k) - 1)
+    den = den1 + den2
+
     return k_linha_a_novo, D_linha_w_novo, L_v_novo, rho_vr_novo, Y, den
 
-def f_rapido(y_rapido, m_fixo):
-    r, T = y_rapido
-    k_a, D_w, Lv, rho_vr_n, Y, den = _grandezas_dinamicas(r, T)
+def f_rapido(t, T, r_fixo):
+    k_linha_a_novo, D_linha_w_novo, L_v_novo, rho_vr_novo, Y, den = _grandezas_dinamicas(r_fixo, T)
+    dT_dt = (3 / (rho_s_val * c_ps * r_fixo**2)) * (k_linha_a_novo * (T_a_em_k - T) + L_v_novo * D_linha_w_novo * (rho_v_val - rho_vr_novo))
+    return dT_dt
+
+def f_lento(t, y_lento, T_final):
+    r, m = y_lento
+    k_linha_a_novo, D_linha_w_novo, L_v_novo, rho_vr_novo, Y, den = _grandezas_dinamicas(r, T_final)
     dr_dt = ((f - 1) - Y) / (r * den)
-    dT_dt = (3 / (rho_s_val * c_ps * r**2)) * (
-        k_a * (T_a_em_k - T) + Lv * D_w * (rho_v_val - rho_vr_n)
-    )
-    return np.array([dr_dt, dT_dt])
-
-def f_lento_completo(m, r_final, T_final):
-    H_nov  = H_estrela.calcular_H_estrela(T_final, S)
-    Dg_nov = Dg_estrela.calcular_Dg_estrela(r_final, T_a_em_k, R_atm)
-    vol    = (4 / 3) * np.pi * r_final**3
+    H_novo = H_estrela.calcular_H_estrela(T_final, S)
+    Dg_novo = Dg_estrela.calcular_Dg_estrela(r, T_a_em_k, R_atm)
+    vol = (4 / 3) * np.pi * r**3
     C_gota = m / vol
-    return 4 * np.pi * r_final * Dg_nov * (C_ar - C_gota / (H_nov * R_atm * T_final))
+    dm_dt = 4 * np.pi * r * Dg_novo * (C_ar - C_gota / (H_novo * R_atm * T_final))
+    return np.array([dr_dt, dm_dt])
 
-def rk3_step_vec(f, y, dt, *args):
-    k1 = f(y, *args);  y1 = y + dt * k1
-    k2 = f(y1, *args); y2 = (3/4) * y + (1/4) * (y1 + dt * k2)
-    k3 = f(y2, *args)
+# RK3 escalar (para T) 
+def rk3_step_scalar(f, t, y, dt, *args):
+    k1 = f(t, y, *args)
+    y1 = y + dt * k1
+    k2 = f(t + dt, y1, *args)
+    y2 = (3/4) * y + (1/4) * (y1 + dt * k2)
+    k3 = f(t + dt/2, y2, *args)
     return (1/3) * y + (2/3) * (y2 + dt * k3)
 
-def passo_multirate_completo(r_n, T_n, m_n, H, M):
-    h = H / M
-    y_rap = np.array([r_n, T_n])
-    for _ in range(M):
-        y_rap = rk3_step_vec(f_rapido, y_rap, h, m_n)
-    r_new, T_new = y_rap
-    m_new = rk3_step_vec(f_lento_completo, m_n, H, r_new, T_new)
+# RK3 vetorial (para [r, m]) 
+def rk3_step(f, t, y, dt, *args):
+    k1 = f(t, y, *args)
+    y1 = y + dt * k1
+    k2 = f(t + dt, y1, *args)
+    y2 = (3/4) * y + (1/4) * (y1 + dt * k2)
+    k3 = f(t + dt/2, y2, *args)
+    return (1/3) * y + (2/3) * (y2 + dt * k3)
+
+
+# Algoritmo multiescala:
+def passo_multiescala(r_n, T_n, m_n, t_n, H, M):
+    dt = H / M
+
+    # 1. Subpassos rápidos: avança T com r fixo
+    T = T_n
+    for j in range(M):
+        t_sub = t_n + j * dt          
+        T = rk3_step_scalar(f_rapido, t_sub, T, dt, r_n)
+
+    T_new = T
+
+    # 2. Passo macro lento: avança [r, m] com T já atualizado
+    y_lento = np.array([r_n, m_n])
+    y_lento_new = rk3_step(f_lento, t_n, y_lento, H, T_new)
+    r_new, m_new = y_lento_new
+
     return r_new, T_new, m_new
 
-def rk3_multirate_completo_solver(r0, T0_val, m0, t_final, H, M):
-    t_l = [0.0]; r_l = [r0]; T_l = [T0_val]; m_l = [m0]
-    t, r, T, m = 0.0, r0, T0_val, m0
+
+def rk3_multiescala_completo(r0, T0, m0, t_final, H, M):
+    t_list, r_list, T_list, m_list = [0], [r0], [T0], [m0]
+    t, r, T, m = 0, r0, T0, m0
+
     while t < t_final:
-        H_eff = min(H, t_final - t)
-        if H_eff < 1e-15: break
-        r, T, m = passo_multirate_completo(r, T, m, H_eff, M)
-        t += H_eff
-        t_l.append(t); r_l.append(r); T_l.append(T); m_l.append(m)
-    return np.array(t_l), np.array(r_l), np.array(T_l), np.array(m_l)
+        dt_macro = min(H, t_final - t)
+        if dt_macro < 1e-15: break
 
-H_macro_c = 1e-3
-M_sub_c   = 10
+        r, T, m = passo_multiescala(r, T, m, t, dt_macro, M) 
+        t += dt_macro
 
-tempo_sub, raio_sub, temp_sub, massa_sub = rk3_multirate_completo_solver(
-    r_i, T_gota_em_k, m_i, tau_f, H_macro_c, M_sub_c)
+        t_list.append(t)
+        r_list.append(r)
+        T_list.append(T)
+        m_list.append(m)
+
+    return np.array(t_list), np.array(r_list), np.array(T_list), np.array(m_list)
+
+# Passo macro (lento: r e m)
+dt_macro = 1e-3
+
+# Número de subpassos rápidos (T) dentro de cada passo macro
+M_sub   = 10
+
+dt_micro = dt_macro/M_sub
+
+tempo_sub, raio_sub, temp_sub, massa_sub = rk3_multiescala_completo(
+    r_i, T_gota_em_k, m_i, tau_f, dt_macro, M_sub)
 
 
 # MÉTODOS COM SIMPLIFICAÇÕES EXPONENCIAIS 
@@ -393,39 +421,55 @@ temp_simp_pid = T_simplificado(tempo_spid)
 
 
 # Simplificado 3: RK3 subcycling 
-def rk3_step_esc(f_m, m, t, dt):
-    k1 = f_m(t, m);           m1 = m + dt * k1
-    k2 = f_m(t + dt, m1);     m2 = (3/4)*m + (1/4)*(m1 + dt*k2)
-    k3 = f_m(t + dt/2, m2)
-    return (1/3)*m + (2/3)*(m2 + dt*k3)
+def rk3_passo(f, t_n, m_n, dt):
+    k1 = f(t_n, m_n)
+    m1 = m_n + dt * k1
 
-def passo_multirate_simp(m_n, t_n, H, M):
-    h = H / M;  m = m_n
-    for k in range(M):
-        m = rk3_step_esc(f_m, m, t_n + k * h, h)
-    return m
+    k2 = f(t_n + dt, m1)
+    m2 = (3/4) * m_n + (1/4) * (m1 + dt * k2)
 
-def rk3_multirate_simp(m0, t_final, H, M):
-    t_l = [0.0];  m_l = [m0];  t, m = 0.0, m0
+    k3 = f(t_n + dt/2, m2)
+    return (1/3) * m_n + (2/3) * (m2 + dt * k3)
+
+def rk3_subcycling(f, m0, t_final, H, M):
+    t_list = [0]
+    m_list = [m0]
+
+    t = 0
+    m = m0
+
     while t < t_final:
-        H_eff = min(H, t_final - t)
-        if H_eff < 1e-15: break
-        m  = passo_multirate_simp(m, t, H_eff, M)
-        t += H_eff
-        t_l.append(t);  m_l.append(m)
-    return np.array(t_l), np.array(m_l)
+        # Ajusta o último passo macro para não ultrapassar t_final
+        dt_macro = min(H, t_final - t)
+        if dt_macro < 1e-15:
+            break
+
+        dt_micro = dt_macro / M  
+        #print(dt_micro) 
+        t_sub = t              
+
+        for _ in range(M):
+            m = rk3_passo(f, t_sub, m, dt_micro)
+            t_sub += dt_micro   
+
+        t += dt_macro
+        t_list.append(t)
+        m_list.append(m)
+
+    return np.array(t_list), np.array(m_list)
 
 H_macro_s = 1e-3
 M_sub_s   = 10
 
-tempo_ssub, massa_simp_sub = rk3_multirate_simp(m_i, tau_f, H_macro_s, M_sub_s)
+tempo_ssub, massa_simp_sub = rk3_subcycling(f_m,m_i, tau_f, H_macro_s, M_sub_s)
 raio_simp_sub = r_simplificado(tempo_ssub)
 temp_simp_sub = T_simplificado(tempo_ssub)
-#PID: {len(tempo_pid)}
-#PID: {len(tempo_spid)}
+
+# PID: {len(tempo_pid)}
+# PID: {len(tempo_spid)}
 print("Pontos:\n"
-    f"  Completo     | Fixo: {len(tempo_fixo)}    Sub: {len(tempo_sub)}\n"
-    f"  Simplificado | Fixo: {len(tempo_simp)}    Sub: {len(tempo_ssub)}")
+    f"  Completo     | Fixo: {len(tempo_fixo)}   Sub: {len(tempo_sub)}\n"
+    f"  Simplificado | Fixo: {len(tempo_simp)}   Sub: {len(tempo_ssub)}")
 # Gráficos
 plt.rcParams['text.usetex'] = False
 plt.rcParams['font.size']   = 9
@@ -442,16 +486,16 @@ fig.suptitle(f'Sistema de EDO Completo vs Simplificações Exponenciais',
 #  Raio 
 ax1.plot(tempo_fixo, raio_fixo * 1e6,'^-', color=C_FIXO, lw=2, ms=4,
          label=f'Completo   | Fixo: r={raio_fixo[-1]*1e6} µm')
-#ax1.plot(tempo_pid,  raio_pid  * 1e6,'s-', color=C_FIXO,  lw=2, ms=4,
-#         label=f'Completo   | PID: r={raio_pid[-1]*1e6} µm')
+ax1.plot(tempo_pid,  raio_pid  * 1e6,'s-', color=C_FIXO,  lw=2, ms=4,
+         label=f'Completo   | PID: r={raio_pid[-1]*1e6} µm')
 ax1.plot(tempo_sub,  raio_sub  * 1e6,'o-', color=C_FIXO,  lw=2, ms=3,
-         label=f'Completo   | Subpassos: r={raio_sub[-1]*1e6} µm')
+         label=f'Completo   | Subcycling: r={raio_sub[-1]*1e6} µm')
 ax1.plot(tempo_simp, raio_simp_fixo * 1e6, '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
          label=f'Simplific. | Fixo: r={raio_simp_fixo[-1]*1e6} µm')
-#ax1.plot(tempo_spid, raio_simp_pid  * 1e6, 's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
-#         label=f'Simplific. | PID: r={raio_simp_pid[-1]*1e6} µm')
+ax1.plot(tempo_spid, raio_simp_pid  * 1e6, 's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | PID: r={raio_simp_pid[-1]*1e6} µm')
 ax1.plot(tempo_ssub, raio_simp_sub  * 1e6, 'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
-         label=f'Simplific. | Subpassos: r={raio_simp_sub[-1]*1e6} µm')
+         label=f'Simplific. | Subcycling: r={raio_simp_sub[-1]*1e6} µm')
 ax1.set_ylabel('Raio (µm)')
 ax1.set_xscale('log')
 ax1.ticklabel_format(axis='y', useOffset=False)
@@ -461,16 +505,16 @@ ax1.grid(True, alpha=0.3, which='both')
 #  Temperatura 
 ax2.plot(tempo_fixo, temp_fixo - 273.15,'^-', color=C_FIXO, lw=2, ms=4,
          label=f'Completo   | Fixo: T={temp_fixo[-1]-273.15} °C')
-#ax2.plot(tempo_pid,  temp_pid  - 273.15,'s-', color=C_FIXO,  lw=2, ms=4,
-#         label=f'Completo   | PID: T={temp_pid[-1]-273.15} °C')
+ax2.plot(tempo_pid,  temp_pid  - 273.15,'s-', color=C_FIXO,  lw=2, ms=4,
+         label=f'Completo   | PID: T={temp_pid[-1]-273.15} °C')
 ax2.plot(tempo_sub,  temp_sub  - 273.15,'o-', color=C_FIXO,  lw=2, ms=3,
-         label=f'Completo   | Subpassos: T={temp_sub[-1]-273.15} °C')
+         label=f'Completo   | Subcycling: T={temp_sub[-1]-273.15} °C')
 ax2.plot(tempo_simp, temp_simp_fixo - 273.15, '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
          label=f'Simplific. | Fixo: T={temp_simp_fixo[-1]-273.15} °C')
-#ax2.plot(tempo_spid, temp_simp_pid  - 273.15, 's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
-#         label=f'Simplific. | PID: T={temp_simp_pid[-1]-273.15} °C')
+ax2.plot(tempo_spid, temp_simp_pid  - 273.15, 's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | PID: T={temp_simp_pid[-1]-273.15} °C')
 ax2.plot(tempo_ssub, temp_simp_sub  - 273.15, 'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
-         label=f'Simplific. | Subpassos: T={temp_simp_sub[-1]-273.15} °C')
+         label=f'Simplific. | Subcycling: T={temp_simp_sub[-1]-273.15} °C')
 ax2.set_ylabel('Temperatura (°C)')
 ax2.set_xscale('log')
 ax2.legend(fontsize=7.5, loc='best', ncol=2)
@@ -479,16 +523,16 @@ ax2.grid(True, alpha=0.3, which='both')
 #  Massa 
 ax3.plot(tempo_fixo, massa_fixo,'^-', color=C_FIXO, lw=2, ms=4,
          label=f'Completo   | Fixo: m={massa_fixo[-1]} mol')
-#ax3.plot(tempo_pid,  massa_pid,'s-', color=C_FIXO,  lw=2, ms=4,
-#         label=f'Completo   | PID: m={massa_pid[-1]} mol')
+ax3.plot(tempo_pid,  massa_pid,'s-', color=C_FIXO,  lw=2, ms=4,
+         label=f'Completo   | PID: m={massa_pid[-1]} mol')
 ax3.plot(tempo_sub,  massa_sub,'o-', color=C_FIXO,  lw=2, ms=3,
-         label=f'Completo   | Subpassos: m={massa_sub[-1]} mol')
+         label=f'Completo   | Subcycling: m={massa_sub[-1]} mol')
 ax3.plot(tempo_simp, massa_simp_fixo,  '^--', color=C_SUB, lw=2, ms=4, alpha=0.7,
          label=f'Simplific. | Fixo: m={massa_simp_fixo[-1]} mol')
-#ax3.plot(tempo_spid, massa_simp_pid,   's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
-#         label=f'Simplific. | PID: m={massa_simp_pid[-1]} mol')
+ax3.plot(tempo_spid, massa_simp_pid,   's--', color=C_SUB,  lw=2, ms=4, alpha=0.7,
+         label=f'Simplific. | PID: m={massa_simp_pid[-1]} mol')
 ax3.plot(tempo_ssub, massa_simp_sub,   'o--', color=C_SUB,  lw=2, ms=3, alpha=0.7,
-         label=f'Simplific. | Subpassos: m={massa_simp_sub[-1]} mol')
+         label=f'Simplific. | Subcycling: m={massa_simp_sub[-1]} mol')
 ax3.set_ylabel('Massa (mol)')
 ax3.set_xlabel('Tempo (s)')
 ax3.set_xscale('log')
