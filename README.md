@@ -106,7 +106,7 @@ while True:
 
     # Continuar? 
     if input("\nDeseja fazer outra simulação? (s/n): ").strip().lower() != 's':
-        print("\nEncerrando o programa.")
+        print("\nEncerrando o programa...")
         break
     
 ```
