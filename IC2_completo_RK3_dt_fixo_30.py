@@ -220,6 +220,7 @@ ax1.set_ylabel('Raio da Gota (µm)', fontsize=12)
 ax1.set_xscale('log')
 ax1.legend(fontsize=10)
 ax1.grid(True, alpha=0.3)
+ax1.ticklabel_format(axis='y', useOffset=False)
 
 # Temperatura
 ax2.plot(tempo, temperatura_rk3 - 273.15,'^-', color='#0D00FF',lw=2, ms=4,
