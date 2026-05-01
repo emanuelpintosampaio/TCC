@@ -71,17 +71,13 @@ Delta_T = Delta_T_contas.calculate_delta_T(
     beta=code_beta.calcular_beta(e_sat_val, T_a_em_k, L_v_val, M_H2O, D_linha_w_val, R, k_linha_a_val),
     b=240.97,
     exp_y=code_exp_y.calcular_exp_y(M_H2O, sigma_s_val, T_a_em_k, rho_w, R, v_ion, Phi_s_val, m_s_val, r_i, rho_s_val, M_NaCl),
-    f=f
-)
+    f=f)
 rho_v_val = rho_v.calcular_rho_v(f, M_H2O, e_sat_val, R, T_a_em_k)
 
-rho_vr_val = rho_vr.calcular_rho_vr(
-    M_H2O,
+rho_vr_val = rho_vr.calcular_rho_vr(M_H2O,
     e_sat_esp.calcular_esat(T_a),
     code_exp_y.calcular_exp_y(M_H2O, sigma_s_val, T_a_em_k, rho_w, R, v_ion, Phi_s_val, m_s_val, r_i, rho_s_val, M_NaCl),
-    R,
-    T_a_em_k
-)
+    R,T_a_em_k)
 
 partial_rho_vr_val = partial_rho_vr.calcular_partial_rho_vr(T_a_em_k, rho_vr_val, a=17.502, b=240.97)
 
@@ -109,111 +105,110 @@ r_eq = metodo_newton.Newton(zeta, dzeta_dr, r0, 1e-6, 100)
 
 tau_r = calcular_tau_r(f, M_H2O, sigma_s_val, R, T_a_em_k, rho_w, r_i, rho_s_val, m_s_val, v_ion, Phi_s_val, M_NaCl, D_linha_w_val, e_sat_val, L_v_val, k_linha_a_val, r_eq)[1]
 
-# Simplificações exponenciais para r(t) e T(t) 
+# Simplificações analíticas para r(t) e T(t)
 def r_simplificado(t):
     return r_eq + (r_i - r_eq) * np.exp(-t / tau_r)
 
 def T_simplificado(t):
     return T_eq_em_k + (T_gota_em_k - T_eq_em_k) * np.exp(-t / tau_T)
 
-
-# Sistema lento: DO da massa usando r(t) e T(t) analíticos 
-def f_lento(m, t):
-    r     = r_simplificado(t)
-    T     = T_simplificado(t)
-    H_t   = H_estrela.calcular_H_estrela(T, S)
-    Dg_t  = Dg_estrela.calcular_Dg_estrela(r, T_a_em_k, R_atm)
-    vol   = (4 / 3) * np.pi * r**3
+# dm/dt = f_m(t, m)
+# r e T são avaliados analiticamente no sub-tempo 
+def f_m(t, m):
+    r = r_simplificado(t)
+    T = T_simplificado(t)
+    H_t = H_estrela.calcular_H_estrela(T, S)
+    Dg_t = Dg_estrela.calcular_Dg_estrela(r, T_a_em_k, R_atm)
+    vol = (4 / 3) * np.pi * r**3
     C_gota = m / vol
-    dm_dt = 4 * np.pi * r * Dg_t * (C_ar - C_gota / (H_t * R_atm * T))
-    return dm_dt
+    return 4 * np.pi * r * Dg_t * (C_ar - C_gota / (H_t * R_atm * T))
 
 
-# Passo RK3 
-def rk3_step(f_lento, m, t, dt):
-    k1 = f_lento(m,t)
-    m1 = m + dt * k1
- 
-    k2 = f_lento(m1,t + dt)
-    m2 = (3/4) * m + (1/4) * (m1 + dt * k2)
- 
-    k3 = f_lento(m2,t + dt / 2)
-    return (1/3) * m + (2/3) * (m2 + dt * k3)
+# RK3 escalar: um único passo de tamanho dt a partir de t_n
+def rk3_passo(f, t_n, m_n, dt):
+    k1 = f(t_n, m_n)
+    m1 = m_n + dt * k1
+
+    k2 = f(t_n + dt, m1)
+    m2 = (3/4) * m_n + (1/4) * (m1 + dt * k2)
+
+    k3 = f(t_n + dt/2, m2)
+    return (1/3) * m_n + (2/3) * (m2 + dt * k3)
 
 
-# Algoritmo de subpassos (apenas para m) 
-def passo_multirate(m_n, t_n, H, M):
-    h = H / M
-    m = m_n
-    for k in range(M):
-        t_sub = t_n + k * h
-        m = rk3_step(f_lento, m, t_sub, h)
-    return m
-
-
-def rk3_multirate_completo(m0, t_final, H, M):
+def rk3_subcycling(f, m0, t_final, H, M):
     t_list = [0]
     m_list = [m0]
-    t, m   = 0, m0
- 
+
+    t = 0
+    m = m0
+
     while t < t_final:
+        # Ajusta o último passo macro para não ultrapassar t_final
         dt_macro = min(H, t_final - t)
         if dt_macro < 1e-15:
             break
-        m  = passo_multirate(m, t, dt_macro, M)
+
+        dt_micro = dt_macro / M  
+        #print(dt_micro) 
+        t_sub = t              
+
+        for _ in range(M):
+            m = rk3_passo(f, t_sub, m, dt_micro)
+            t_sub += dt_micro   
+
         t += dt_macro
         t_list.append(t)
         m_list.append(m)
- 
+
     return np.array(t_list), np.array(m_list)
 
 
-# Condições iniciais para massa
-vol_i = (4/3) * np.pi * r_i**3
-m_i = vol_i * C_ar * H_estrela.calcular_H_estrela(T_gota_em_k, S) * R_atm * T_gota_em_k
+# Condição inicial da massa
+vol_i = (4 / 3) * np.pi * r_i**3
+H_i   = H_estrela.calcular_H_estrela(T_gota_em_k, S)
+m_i   = vol_i * C_ar * H_i * R_atm * T_gota_em_k
 
-# Passo da Massa
-H_macro = 1e-3 
+# passo macro 
+H_macro = 1e-3
 
-# sub-passos para r e T dentro de cada passo de m
-M_sub   = 10    
+# subpassos por passo macro 
+M_sub   = 10
 
-# Solução com RK3 por controle de subpassos
-t_mr, massa_rk3_sub = rk3_multirate_completo(m_i, tau_f, H_macro, M_sub)
-raio_simp = r_simplificado(t_mr)
-temp_simp = T_simplificado(t_mr)
+dt = H_macro / M_sub
 
+# Solução
+tempo, massa_rk3 = rk3_subcycling(f_m, m_i, tau_f, H_macro, M_sub)
 
-#print(massa_rk3_sub[-1])
+raio_simp = r_simplificado(tempo)
+temp_simp = T_simplificado(tempo)
+massa_final = massa_rk3[-1]
 
 # Gráficos
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
- 
+
 fig.suptitle(
-    f'H_macro = {H_macro:.0e} s | M_sub = {M_sub} | {len(t_mr)} pontos',
-    fontsize=13
+    f'dt_macro = {H_macro:.0e} s | M_sub = {M_sub} | dt_micro = {H_macro/M_sub:.0e} s | {len(tempo)} pontos',
+    fontsize=12
 )
- 
-# Raio
-ax1.plot(t_mr, raio_simp * 1e6, 'o-', color='#FF0000', linewidth=2, markersize=4,
-         label=f'r_final = {raio_simp[-1] * 1e6} µm')
+
+ax1.plot(tempo, raio_simp * 1e6, 'o-', color='#FF0000', lw=2, ms=4,
+         label=f'r_final = {raio_simp[-1]*1e6} µm')
 ax1.set_ylabel('Raio da Gota (µm)', fontsize=12)
 ax1.set_xscale('log')
 ax1.legend(fontsize=10)
 ax1.grid(True, alpha=0.3)
- 
-# Temperatura
-ax2.plot(t_mr, temp_simp - 273.15, 'o-', color='#FF0000', linewidth=2,
-         markersize=4, label=f'T_final = {temp_simp[-1] - 273.15} °C')
+
+ax2.plot(tempo, temp_simp - 273.15, 'o-', color='#FF0000', lw=2, ms=4,
+         label=f'T_final = {temp_simp[-1]-273.15} °C')
 ax2.set_ylabel('Temperatura da Gota (°C)', fontsize=12)
 ax2.set_xscale('log')
 ax2.legend(fontsize=10)
 ax2.grid(True, alpha=0.3)
- 
-# Massa
-ax3.semilogx(t_mr, massa_rk3_sub, 'o-', color='#FF0000', linewidth=2,
-             markersize=4, label=f'Massa final: {massa_rk3_sub[-1]} mol')
+
+ax3.semilogx(tempo, massa_rk3, 'o-', color='#FF0000', lw=2, ms=4,
+             label=f'Massa final: {massa_final} mol')
 ax3.set_xlabel('Tempo (s)', fontsize=12)
 ax3.set_ylabel('Massa (mol)', fontsize=12)
 ax3.legend(fontsize=10)
