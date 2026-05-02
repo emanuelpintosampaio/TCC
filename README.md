@@ -25,13 +25,13 @@ if not os.path.exists('IC'):
 SIMULACOES = {
     "ECONTROL": {
         "descricao": "EDO completo | passo fixo",
-        "script":    "IC2_completo_RK3_dt_fixo_{raio}.py",
-        "grafico":   "grafico_dt_fixo_completo_{raio}.png",
+        "script": "IC2_completo_RK3_dt_fixo_{raio}.py",
+        "grafico": "grafico_dt_fixo_completo_{raio}.png",
     },
     "E1": {
         "descricao": "EDO completo | controle por subpassos",
-        "script":    "IC2_completo_RK3_subpassos_{raio}.py",
-        "grafico":   "grafico_subpassos_completo_{raio}.png",
+        "script": "IC2_completo_RK3_subpassos_{raio}.py",
+        "grafico": "grafico_subpassos_completo_{raio}.png",
     },
     "E2": {
         "descricao": "EDO simples | passo fixo",
@@ -40,8 +40,8 @@ SIMULACOES = {
     },
     "E3": {
         "descricao": "EDO simples | controle por subpassos",
-        "script":    "IC2_simplificacao_RK3_subpassos_{raio}.py",
-        "grafico":   "grafico_subpassos_simplificacao_{raio}.png",
+        "script": "IC2_simplificacao_RK3_subpassos_{raio}.py",
+        "grafico": "grafico_subpassos_simplificacao_{raio}.png",
     }}
 
 OPCOES_RAIO = {"1": "30", "2": "500"}
