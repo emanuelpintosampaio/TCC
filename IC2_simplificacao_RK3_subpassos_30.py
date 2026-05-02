@@ -112,103 +112,122 @@ def r_simplificado(t):
 def T_simplificado(t):
     return T_eq_em_k + (T_gota_em_k - T_eq_em_k) * np.exp(-t / tau_T)
 
-# dm/dt = f_m(t, m)
-# r e T são avaliados analiticamente no sub-tempo 
-def f_m(t, m):
+
+# Sistema RÁPIDO: T avaliado analiticamente no sub-tempo t
+# Retorna T_new = T_simplificado(t + dt) diretamente (sem EDO)
+def f_rapido(t, dt):
+    return T_simplificado(t + dt)
+
+
+# Sistema LENTO: apenas m como EDO
+# r e T são avaliados analiticamente no tempo macro t_n + H
+def f_lento(t, m, T_new):
     r = r_simplificado(t)
-    T = T_simplificado(t)
-    H_t = H_estrela.calcular_H_estrela(T, S)
+    H_t = H_estrela.calcular_H_estrela(T_new, S)
     Dg_t = Dg_estrela.calcular_Dg_estrela(r, T_a_em_k, R_atm)
     vol = (4 / 3) * np.pi * r**3
     C_gota = m / vol
-    return 4 * np.pi * r * Dg_t * (C_ar - C_gota / (H_t * R_atm * T))
+    return 4 * np.pi * r * Dg_t * (C_ar - C_gota / (H_t * R_atm * T_new))
 
 
-# RK3 escalar: um único passo de tamanho dt a partir de t_n
-def rk3_passo(f, t_n, m_n, dt):
-    k1 = f(t_n, m_n)
-    m1 = m_n + dt * k1
-
-    k2 = f(t_n + dt, m1)
-    m2 = (3/4) * m_n + (1/4) * (m1 + dt * k2)
-
-    k3 = f(t_n + dt/2, m2)
-    return (1/3) * m_n + (2/3) * (m2 + dt * k3)
+# RK3 escalar (para m)
+def rk3_step_scalar(f, t, y, dt, *args):
+    k1 = f(t, y, *args)
+    y1 = y + dt * k1
+    k2 = f(t + dt, y1, *args)
+    y2 = (3/4) * y + (1/4) * (y1 + dt * k2)
+    k3 = f(t + dt/2, y2, *args)
+    return (1/3) * y + (2/3) * (y2 + dt * k3)
 
 
-def rk3_subcycling(f, m0, t_final, H, M):
-    t_list = [0]
-    m_list = [m0]
+# Algoritmo multiescala (espelhando E1):
+# 1. Subpassos rápidos: avança T analiticamente (M subpassos de dt = H/M)
+# 2. Passo macro lento: avança m com RK3, usando T já atualizado e r analítico
+def passo_multiescala(r_n, T_n, m_n, t_n, H, M):
+    dt = H / M
 
-    t = 0
-    m = m0
+    # 1. Subpassos rápidos: T é analítico, apenas avança o tempo interno
+    #    T_new = T_simplificado avaliado no fim do passo macro
+    T_new = f_rapido(t_n, H)
+
+    # 2. Passo macro lento: avança m com RK3 usando T_new e r analítico
+    m_new = rk3_step_scalar(f_lento, t_n, m_n, H, T_new)
+    r_new = r_simplificado(t_n + H)
+
+    return r_new, T_new, m_new
+
+
+def rk3_multiescala_completo(r0, T0_val, m0, t_final, H, M):
+    t_list   = [0]
+    r_list   = [r0]
+    T_list   = [T0_val]
+    m_list   = [m0]
+    t, r, T, m = 0, r0, T0_val, m0
 
     while t < t_final:
-        # Ajusta o último passo macro para não ultrapassar t_final
         dt_macro = min(H, t_final - t)
         if dt_macro < 1e-15:
             break
 
-        dt_micro = dt_macro / M  
-        #print(dt_micro) 
-        t_sub = t              
-
-        for _ in range(M):
-            m = rk3_passo(f, t_sub, m, dt_micro)
-            t_sub += dt_micro   
-
+        r, T, m = passo_multiescala(r, T, m, t, dt_macro, M)
         t += dt_macro
+
         t_list.append(t)
+        r_list.append(r)
+        T_list.append(T)
         m_list.append(m)
 
-    return np.array(t_list), np.array(m_list)
+    return np.array(t_list), np.array(r_list), np.array(T_list), np.array(m_list)
 
 
-# Condição inicial da massa
-vol_i = (4 / 3) * np.pi * r_i**3
+# Condições iniciais para massa
+vol_i = (4/3) * np.pi * r_i**3
 H_i   = H_estrela.calcular_H_estrela(T_gota_em_k, S)
 m_i   = vol_i * C_ar * H_i * R_atm * T_gota_em_k
 
-# passo macro 
-H_macro = 1e-3
+# Passo macro (lento: r e m)
+dt_macro = 1e-3
 
-# subpassos por passo macro 
+# Número de subpassos rápidos (T) dentro de cada passo macro
 M_sub   = 10
 
-dt = H_macro / M_sub
+dt_micro = dt_macro / M_sub
 
-# Solução
-tempo, massa_rk3 = rk3_subcycling(f_m, m_i, tau_f, H_macro, M_sub)
+# Solução com RK3 multiescala
+t_mr, raio_simp, temperatura_simp, massa_rk3_sub = rk3_multiescala_completo(
+    r_i, T_gota_em_k, m_i, tau_f, dt_macro, M_sub)
 
-raio_simp = r_simplificado(tempo)
-temp_simp = T_simplificado(tempo)
-massa_final = massa_rk3[-1]
+print(f'raio inicial: {r_i}')
+print(f'massa final: {massa_rk3_sub[-1]}')
 
+#"""
 # Gráficos
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
 
 fig.suptitle(
-    f'dt_macro = {H_macro:.0e} s | M_sub = {M_sub} | dt_micro = {H_macro/M_sub:.0e} s | {len(tempo)} pontos',
-    fontsize=12
-)
+    f'dt_macro = {dt_macro:.0e} s | M_sub = {M_sub} | dt_micro = {dt_micro:.0e} s | {len(t_mr)} pontos',
+    fontsize=13)
 
-ax1.plot(tempo, raio_simp * 1e6, 'o-', color='#FF0000', lw=2, ms=4,
-         label=f'r_final = {raio_simp[-1]*1e6} µm')
+# Raio
+ax1.plot(t_mr, raio_simp * 1e6, 'o-', color='#FF0000', linewidth=2, markersize=4,
+         label=f'r_final = {raio_simp[-1] * 1e6} µm')
 ax1.set_ylabel('Raio da Gota (µm)', fontsize=12)
 ax1.set_xscale('log')
 ax1.legend(fontsize=10)
 ax1.grid(True, alpha=0.3)
 
-ax2.plot(tempo, temp_simp - 273.15, 'o-', color='#FF0000', lw=2, ms=4,
-         label=f'T_final = {temp_simp[-1]-273.15} °C')
+# Temperatura
+ax2.plot(t_mr, temperatura_simp - 273.15, 'o-', color='#FF0000', linewidth=2,
+         markersize=4, label=f'T_final = {temperatura_simp[-1] - 273.15} °C')
 ax2.set_ylabel('Temperatura da Gota (°C)', fontsize=12)
 ax2.set_xscale('log')
 ax2.legend(fontsize=10)
 ax2.grid(True, alpha=0.3)
 
-ax3.semilogx(tempo, massa_rk3, 'o-', color='#FF0000', lw=2, ms=4,
-             label=f'Massa final: {massa_final} mol')
+# Massa
+ax3.semilogx(t_mr, massa_rk3_sub, 'o-', color='#FF0000', linewidth=2,
+             markersize=4, label=f'Massa final: {massa_rk3_sub[-1]} mol')
 ax3.set_xlabel('Tempo (s)', fontsize=12)
 ax3.set_ylabel('Massa (mol)', fontsize=12)
 ax3.legend(fontsize=10)
