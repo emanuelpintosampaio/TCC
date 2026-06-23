@@ -17,9 +17,9 @@ import os
 import time
 from IPython.display import Image, display, clear_output
 
-if not os.path.exists('IC'):
-    !git clone https://github.com/offemanuel/IC.git
-%cd IC
+if not os.path.exists('TCC'):
+    !git clone https://github.com/offemanuel/TCC.git
+%cd TCC
 !pip install -q numpy matplotlib
 
 SIMULACOES = {
