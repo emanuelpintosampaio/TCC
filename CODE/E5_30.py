@@ -9,32 +9,31 @@ from DGH import Dg_estrela, H_estrela
 import matplotlib.pyplot as plt
 import math
 
-
 # ANDREAS
-T_a = 18           # Temperatura do ar em °C ANDREAS(18)
-T_a_em_k = T_a + 273.15  # Temperatura do ar em K ANDREAS(291.15)
-T_mar_em_k = 293.15  # Temperatura do mar em K ANDREAS(293.15)
-T_gota = 19.8      # Temperatura da gota em °C ANDREAS(20.2)
-T_gota_em_k = T_gota + 273.15  # Temperatura da gota em K ANDREAS(293.35)
-P = 1000           # Pressão em mb
-M_H2O = 18.016e-3  # Massa molecular da água em kg/mol
-r_i = 30e-6       # Raio em metros
-R = 8.31           # Constante universal dos gases
-M_NaCl = 58.443e-3  # Massa molecular de sal na água em kg/mol
-rho_w = 1025       # Densidade da água do mar kg/m^3
-v_ion = 2          # Número de íons por molécula de NaCl dissociada
-s = 34/1000        # Salinidade fracionária (34 psu)
-f = 0.9            # Umidade relativa fracionária ANDREAS(0.8)
-C_ar = 0.0154      # Concentração do gás carbônico no ar
-S = 34             # Salinidade do mar
-R_atm = 0.082      # Constante universal dos gases
-g = 9.81           # Gravidade
-v_ar = 1.32e-5     # Viscosidade cinemática do ar
-rho_ar = 1.225     # Densidade do ar
-H_s = 6            # Altura significativa da onda 
+T_a = 18          
+T_a_em_k = T_a + 273.15 
+T_mar_em_k = 293.15  
+T_gota = 19.8     
+T_gota_em_k = T_gota + 273.15  
+P = 1000          
+M_H2O = 18.016e-3  
+r_i = 30e-6       
+R = 8.31           
+M_NaCl = 58.443e-3  
+rho_w = 1025       
+v_ion = 2         
+s = 34/1000       
+f = 0.9            
+C_ar = 0.0154      
+S = 34             
+R_atm = 0.082     
+g = 9.81          
+v_ar = 1.32e-5    
+rho_ar = 1.225     
+H_s = 6            
 T0 = 273.15
 P0 = 1013.25
-c_ps = 4000        # Calor específico da spray
+c_ps = 4000       
 
 # Cálculos Iniciais
 def func(U_f):
@@ -235,22 +234,23 @@ temp_simp = T_simplificado(tempo)
 massa_final = massa_euler[-1]
 dt_final = dts[-1]
 
-print(f'raio inicial: {r_i}')
-print(f'massa final: {massa_final}')
-print(f'pontos: {len(tempo)}')
+#print(f'raio inicial: {r_i}')
+#print(f'massa final: {massa_final}')
+#print(f'pontos: {len(tempo)}')
 
 
 # Gráficos 
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(12, 10), sharex=True)
 
+
 fig.suptitle(
-    f'Sistema Simplificado Adaptativo - Euler Explícito (E5)\n{len(tempo)} pontos',
+    f'Euler Explícito | Modelo Simplificado | Adaptativo {len(tempo)} pontos',
     fontsize=13
 )
 
 # Raio
-ax1.plot(tempo, raio_simp * 1e6, 's-', color='#0D00FF', lw=2, ms=4,
+ax1.plot(tempo, raio_simp * 1e6, 's-', color="#FF0000", lw=2, ms=4,
          label=f'r_final = {raio_simp[-1] * 1e6:.2f} µm')
 ax1.set_ylabel('Raio da Gota (µm)', fontsize=12)
 ax1.set_xscale('log')
@@ -258,7 +258,7 @@ ax1.legend(fontsize=10)
 ax1.grid(True, alpha=0.3)
 
 # Temperatura
-ax2.plot(tempo, temp_simp - 273.15, 's-', color='#0D00FF', lw=2, ms=4,
+ax2.plot(tempo, temp_simp - 273.15, 's-', color='#FF0000', lw=2, ms=4,
           label=f'T_final = {temp_simp[-1] - 273.15:.2f} °C')
 ax2.set_ylabel('Temperatura da Gota (°C)', fontsize=12)
 ax2.set_xscale('log')
@@ -266,14 +266,14 @@ ax2.legend(fontsize=10)
 ax2.grid(True, alpha=0.3)
 
 # Massa
-ax3.semilogx(tempo, massa_euler, 's-', color='#0D00FF', lw=2, ms=4,
+ax3.semilogx(tempo, massa_euler, 's-', color='#FF0000', lw=2, ms=4,
               label=f'Massa final: {massa_final:.3e} mol')
 ax3.set_ylabel('Massa (mol)', fontsize=12)
 ax3.legend(fontsize=10)
 ax3.grid(True, alpha=0.3)
 
 # dt
-ax4.semilogx(tempo, dts, '-', color='#0D00FF', lw=2, ms=4,
+ax4.semilogx(tempo, dts, 's-', color='#FF0000', lw=2, ms=4,
                label=f"dt final: {dt_final:.2e} s")
 ax4.set_xlabel('Tempo (s)', fontsize=12)
 ax4.set_ylabel('Passo de tempo (s)', fontsize=12)
