@@ -217,9 +217,9 @@ dt_micro = dt_macro / M_sub
 t_me, raio_euler_sub, temperatura_euler_sub, massa_euler_sub = euler_multiescala_completo(r_i, T_gota_em_k, m_i, tau_f, dt_macro, M_sub)
 
 
-print(f'raio inicial: {r_i}')
-print(f'massa final: {massa_euler_sub[-1]}')
-print(f'pontos: {len(t_me)}')
+#print(f'raio inicial: {r_i}')
+#print(f'massa final: {massa_euler_sub[-1]}')
+#print(f'pontos: {len(t_me)}')
 
 
 # Gráficos
