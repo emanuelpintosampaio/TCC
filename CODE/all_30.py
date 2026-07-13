@@ -503,5 +503,5 @@ bx4.legend(fontsize=7.5, loc='best')
 bx4.grid(True, alpha=0.3, which='both')
 
 fig2.tight_layout()
-fig2.savefig('all_pid_30.png', dpi=400)
+fig2.savefig('all_30.png', dpi=400)
 #plt.show()
