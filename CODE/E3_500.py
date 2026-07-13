@@ -9,8 +9,6 @@ from DGH import Dg_estrela, H_estrela
 import matplotlib.pyplot as plt
 import math
 
-
-# ANDREAS
 # ANDREAS
 T_a = 18          
 T_a_em_k = T_a + 273.15 
