@@ -11,7 +11,6 @@ import math
 
 
 # ANDREAS
-# ANDREAS
 T_a = 18          
 T_a_em_k = T_a + 273.15 
 T_mar_em_k = 293.15  
