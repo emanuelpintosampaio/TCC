@@ -268,7 +268,7 @@ plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(12, 10))
 
 fig.suptitle(
-    f'Euler Explícito | Sistema Completo | Adaptativo {len(tempo)} pontos',
+    f'Euler Explícito | Modelo Completo | Adaptativo {len(tempo)} pontos',
     fontsize=13
 )
 # Raio
