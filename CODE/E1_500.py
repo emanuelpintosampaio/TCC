@@ -227,7 +227,8 @@ plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
 
 fig.suptitle(
-    f'Euler Explícito | dt_macro = {dt_macro:.0e} s | M_sub = {M_sub} | dt_micro = {dt_micro:.0e} s | {len(t_me)} pontos',
+    f'Euler Explícito | Modelo Completo\n'
+    f'dt_macro = {dt_macro:.0e} s | M_sub = {M_sub} | dt_micro = {dt_micro:.0e} s | {len(t_me)} pontos',
     fontsize=13)
 
 # Raio
