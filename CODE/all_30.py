@@ -9,30 +9,31 @@ from DGH import Dg_estrela, H_estrela
 import matplotlib.pyplot as plt
 
 
-T_a         = 18
-T_a_em_k    = T_a + 273.15
-T_mar_em_k  = 293.15
-T_gota      = 19.8
-T_gota_em_k = T_gota + 273.15
-P           = 1000
-M_H2O       = 18.016e-3
-r_i         = 30e-6
-R           = 8.31
-M_NaCl      = 58.443e-3
-rho_w       = 1025
-v_ion       = 2
-s           = 34 / 1000
-f           = 0.9
-C_ar        = 0.0154
-S           = 34
-R_atm       = 0.082
-g           = 9.81
-v_ar        = 1.32e-5
-rho_ar      = 1.225
-H_s         = 6
-T0          = 273.15
-P0          = 1013.25
-c_ps        = 4000
+# ANDREAS
+T_a = 18          
+T_a_em_k = T_a + 273.15 
+T_mar_em_k = 293.15  
+T_gota = 19.8     
+T_gota_em_k = T_gota + 273.15  
+P = 1000          
+M_H2O = 18.016e-3  
+r_i = 30e-6       
+R = 8.31           
+M_NaCl = 58.443e-3  
+rho_w = 1025       
+v_ion = 2         
+s = 34/1000       
+f = 0.9            
+C_ar = 0.0154      
+S = 34             
+R_atm = 0.082     
+g = 9.81          
+v_ar = 1.32e-5    
+rho_ar = 1.225     
+H_s = 6            
+T0 = 273.15
+P0 = 1013.25
+c_ps = 4000       
 
 
 def func(U_f):
@@ -387,14 +388,14 @@ t_e5, massa_e5, dt_e5 = euler_pid_simplificado(f_m, m_i, 0.0, tau_f, **PID)
 raio_e5 = r_simplificado(t_e5)
 temp_e5 = T_simplificado(t_e5)
 
-print("Pontos:")
-print(f"  ECONTROL (Euler fixo, compl.): {len(tempo_fixo)}")
-print(f"  SCONTROL (RK3  fixo, compl.): {len(tempo_fixo)}")
-print(f"  E1  (Euler sub,  compl.):      {len(t_e1)}")
-print(f"  E2  (Euler PID,  compl.):      {len(t_e2)}")
-print(f"  E3  (Euler fixo, simp.):       {len(tempo_fixo)}")
-print(f"  E4  (Euler sub,  simp.):       {len(t_e4)}")
-print(f"  E5  (Euler PID,  simp.):       {len(t_e5)}")
+#print("Pontos:")
+#print(f"  ECONTROL (Euler fixo, compl.): {len(tempo_fixo)}")
+#print(f"  SCONTROL (RK3  fixo, compl.): {len(tempo_fixo)}")
+#print(f"  E1  (Euler sub,  compl.):      {len(t_e1)}")
+#print(f"  E2  (Euler PID,  compl.):      {len(t_e2)}")
+#print(f"  E3  (Euler fixo, simp.):       {len(tempo_fixo)}")
+#print(f"  E4  (Euler sub,  simp.):       {len(t_e4)}")
+#print(f"  E5  (Euler PID,  simp.):       {len(t_e5)}")
 
 
 plt.rcParams['text.usetex'] = False
