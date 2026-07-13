@@ -172,8 +172,9 @@ massa_final = massa_euler[-1]
 plt.rcParams['text.usetex'] = False
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
 
+
 fig.suptitle(
-    f'Euler Explícito | ' f'dt_fixo = {dt_fixo:.0e} s | {len(tempo)} pontos',
+    f'Euler Explícito | Modelo Simplificado | ' f'dt_fixo = {dt_fixo:.0e} s | {len(tempo)} pontos',
     fontsize=13
 )
 # Raio
