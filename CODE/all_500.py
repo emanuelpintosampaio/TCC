@@ -458,7 +458,7 @@ ax3.legend(fontsize=7.5, loc='best', ncol=2)
 ax3.grid(True, alpha=0.3, which='both')
 
 fig1.tight_layout()
-fig1.savefig('all_fixo_sub_30.png', dpi=400)
+fig1.savefig('all_fixo_sub_500.png', dpi=400)
 
 
 fig2, (bx1, bx2, bx3, bx4) = plt.subplots(4, 1, figsize=(7, 9), sharex=True)
@@ -503,5 +503,5 @@ bx4.legend(fontsize=7.5, loc='best')
 bx4.grid(True, alpha=0.3, which='both')
 
 fig2.tight_layout()
-fig2.savefig('all_500.png', dpi=400)
+fig2.savefig('all_pid_500.png', dpi=400)
 #plt.show()
