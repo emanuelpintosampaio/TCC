@@ -256,4 +256,4 @@ ax3.grid(True, alpha=0.3)
 
 plt.tight_layout()
 #plt.show()
-plt.savefig("E1_30.png")
+plt.savefig("E1_500.png")
