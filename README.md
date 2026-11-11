@@ -1,3 +1,9 @@
+## Texto do TCC
+
+O texto completo do TCC está em [`RELATORIO/Emanuel_relatório_final_TCC.pdf`](RELATORIO/Emanuel_relatório_final_TCC.pdf).
+
+> **Errata:** na abertura do Capítulo 3 (página 48), o texto diz que o SCONTROL usa passo fixo Δt = 10⁻³ s. O passo usado nos resultados é **Δt = 10⁻⁴ s**, como está na Seção 3.3 e nos scripts `CODE/SCONTROL_30.py` e `CODE/SCONTROL_500.py`.
+
 ## Como executar o menu das simulações no Google Colab
 
 Você pode rodar este projeto diretamente no Google Colab, sem instalar nada localmente.
