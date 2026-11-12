@@ -1,172 +1,66 @@
-## Texto do TCC
+# TCC: Avaliação de Simplificações do Modelo Físico e de Métodos de Integração Temporal Aplicados à Difusão de Gás em Gotículas Marinha
 
-O texto completo do TCC está em [`RELATORIO/Emanuel_relatório_final_TCC.pdf`](RELATORIO/Emanuel_relatório_final_TCC.pdf).
+Trabalho de Conclusão de Curso · Bacharelado em Matemática Industrial · UFES (CEUNES) · 2026 · Orientador: Prof. Dr. Iury Angelo Gonçalves · Aluno: Emanuel Pinto Sampaio
 
-> **Errata:** na abertura do Capítulo 3 (página 48), o texto diz que o SCONTROL usa passo fixo Δt = 10⁻³ s. O passo usado nos resultados é **Δt = 10⁻⁴ s**, como está na Seção 3.3 e nos scripts `CODE/SCONTROL_30.py` e `CODE/SCONTROL_500.py`.
+Texto do TCC: [PDF](relatorio/Emanuel_relatório_final_TCC.pdf) · Iniciações científicas: [IC1](https://github.com/emanuelpintosampaio/IC1) · [IC2](https://github.com/emanuelpintosampaio/IC2)
 
-## Como executar o menu das simulações no Google Colab
+## Resumo
 
-Você pode rodar este projeto diretamente no Google Colab, sem instalar nada localmente.
+Simulação da absorção de CO₂ por gotículas de espuma marinha comparando duas formas de modelar o problema: o **sistema completo** de equações para o raio, a temperatura e a massa, e um **modelo simplificado**, em que raio e temperatura seguem decaimentos exponenciais. Os dois são resolvidos pelo **método de Euler Explícito** com três estratégias de passo de tempo (fixo, subpassos e adaptativo com controle PID) e comparados com uma solução de referência, o SCONTROL (sistema completo resolvido por SSPRK3 com passo fixo). Gotículas de 30 e 500 µm.
 
-### Passos:
+| Modelo | Passo fixo | Subpassos | PID |
+|---|---|---|---|
+| Sistema completo | ECONTROL | E1 | E2 |
+| Simplificado | E3 | E4 | E5 |
 
-1° Acesse: [https://colab.research.google.com/](https://colab.research.google.com/)
+## Rodar no Google Colab
 
-2° Clique em **"Novo notebook"**
-
-3° Clique em **"Conectar"**
-
-4° Cole o código abaixo em uma célula e execute:
+Abra um notebook em [colab.research.google.com](https://colab.research.google.com/), cole numa célula e execute:
 
 ```python
-import os
-import time
-from IPython.display import Image, display, clear_output
-
-# Clona o repositório na primeira execução e acessa a pasta dos códigos.
-if not os.path.exists('TCC'):
-    !git clone https://github.com/emanuelpintosampaio/TCC.git
-    %cd TCC/CODE
-    !pip install -q numpy matplotlib
-elif os.path.basename(os.getcwd()) != 'CODE':
-    if os.path.exists('TCC/CODE'):
-        %cd TCC/CODE
-    elif os.path.exists('CODE'):
-        %cd CODE
-
-# Associação entre cada simulação, o script correspondente e o gráfico gerado.
-SIMULACOES = {
-    "SCONTROL": {
-        "descricao": "Sistema Completo | SSPRK3 | Passo Fixo",
-        "script": "SCONTROL_{raio}.py",
-        "grafico": "SCONTROL_{raio}.png",
-    },
-    "ECONTROL": {
-        "descricao": "Sistema Completo | Euler Explícito | Passo Fixo",
-        "script": "ECONTROL_{raio}.py",
-        "grafico": "ECONTROL_{raio}.png",
-    },
-    "E1": {
-        "descricao": "Sistema Completo | Euler Explícito | Subpassos",
-        "script": "E1_{raio}.py",
-        "grafico": "E1_{raio}.png",
-    },
-    "E2": {
-        "descricao": "Sistema Completo | Euler Explícito | PID",
-        "script": "E2_{raio}.py",
-        "grafico": "E2_{raio}.png",
-    },
-    "E3": {
-        "descricao": "Sistema Simplificado | Euler Explícito | Passo Fixo",
-        "script": "E3_{raio}.py",
-        "grafico": "E3_{raio}.png",
-    },
-    "E4": {
-        "descricao": "Sistema Simplificado | Euler Explícito | Subpassos",
-        "script": "E4_{raio}.py",
-        "grafico": "E4_{raio}.png",
-    },
-    "E5": {
-        "descricao": "Sistema Simplificado | Euler Explícito | PID",
-        "script": "E5_{raio}.py",
-        "grafico": "E5_{raio}.png",
-    }
-}
-
-OPCOES_RAIO = {"1": "30", "2": "500"}
-
-# Menu principal.
-while True:
-    clear_output(wait=True)
-
-    print("=" * 60)
-    print(" ESCOLHA O RAIO DA GOTA PARA A SIMULAÇÃO".center(60))
-    print("=" * 60)
-
-    for k, v in OPCOES_RAIO.items():
-        print(f" [{k}] - {v} µm")
-
-    print("-" * 60)
-
-    time.sleep(0.5)
-    opcao_raio = input("Opção de Raio (1 ou 2): ").strip()
-
-    if opcao_raio not in OPCOES_RAIO:
-        print("\nOpção de raio inválida. Tente novamente.")
-        time.sleep(1.5)
-        continue
-
-    raio = OPCOES_RAIO[opcao_raio]
-
-    print("\n" + "=" * 60)
-    print(" ESCOLHA O TIPO DE SIMULAÇÃO".center(60))
-    print("=" * 60)
-
-    opcoes_sim = list(SIMULACOES.keys())
-
-    for i, nome in enumerate(opcoes_sim, 1):
-        print(f" [{i}] - {nome:<8} : {SIMULACOES[nome]['descricao']}")
-
-    opcao_todas = len(opcoes_sim) + 1
-    print(f" [{opcao_todas}] - Comparação : Executar todas as simulações")
-    print("-" * 60)
-
-    time.sleep(0.5)
-    opcao_sim = input("Opção de Simulação: ").strip()
-
-    # Lista dos gráficos que serão exibidos ao final da execução.
-    graficos_para_exibir = []
-
-    if opcao_sim.isdigit() and 1 <= int(opcao_sim) <= len(opcoes_sim):
-        nome_sim = opcoes_sim[int(opcao_sim) - 1]
-        sim = SIMULACOES[nome_sim]
-
-        script = sim["script"].format(raio=raio)
-        grafico = sim["grafico"].format(raio=raio)
-
-        print(f"\nExecutando Simulação {nome_sim} | Raio: {raio} µm")
-        print(f"Arquivo: {script}")
-
-        os.system(f"python {script}")
-        graficos_para_exibir.append(grafico)
-
-    elif opcao_sim == str(opcao_todas):
-        print(f"\nExecutando comparação completa | Raio: {raio} µm")
-
-        script_all = f"all_{raio}.py"
-        print(f"Arquivo: {script_all}")
-
-        os.system(f"python {script_all}")
-
-        # O script all gera dois gráficos comparativos.
-        graficos_para_exibir.append(f"all_fixo_sub_{raio}.png")
-        graficos_para_exibir.append(f"all_pid_{raio}.png")
-
-    else:
-        print("\nOpção inválida. Tente novamente.")
-        time.sleep(1.5)
-        continue
-
-    # Aguarda a escrita dos arquivos antes de exibi-los.
-    print("\nBuscando gráficos gerados...")
-    time.sleep(0.5)
-
-    exibidos = 0
-    for arq in graficos_para_exibir:
-        if os.path.exists(arq):
-            print(f"Exibindo: {arq}")
-            display(Image(arq))
-            exibidos += 1
-
-    if exibidos == 0:
-        print("\nNenhum gráfico encontrado. Verifique se o script foi executado corretamente.")
-
-    time.sleep(0.5)
-
-    if input("\nDeseja fazer outra simulação? (s/n): ").strip().lower() != "s":
-        print("\nEncerrando o programa.")
-        break
-    
+%cd /content
+![ -d TCC ] || git clone -q https://github.com/emanuelpintosampaio/TCC.git
+%cd TCC/codigos
+%run menu_colab.py
 ```
 
----
+O menu pede o raio da gota (30 ou 500 µm) e o experimento (ou todos juntos) e mostra os gráficos.
+
+## Resultados
+
+Passo fixo e subpassos:
+
+| 30 µm | 500 µm |
+|---|---|
+| ![30 µm](figuras_relatorio/grafico_euler_fixo_sub_30.png) | ![500 µm](figuras_relatorio/grafico_euler_fixo_sub_500.png) |
+
+Passo adaptativo com controle PID:
+
+| 30 µm | 500 µm |
+|---|---|
+| ![30 µm](figuras_relatorio/grafico_euler_pid_30.png) | ![500 µm](figuras_relatorio/grafico_euler_pid_500.png) |
+
+Erro relativo final em relação ao SCONTROL:
+
+| Experimento | 30 µm | 500 µm |
+|---|---|---|
+| ECONTROL | 4,94 × 10⁻⁷ | 1,23 × 10⁻⁷ |
+| E1 | 5,08 × 10⁻⁶ | 1,41 × 10⁻⁵ |
+| E2 | 1,69 × 10⁻⁵ | 9,06 × 10⁻⁶ |
+| E3 | 1,36 × 10⁻¹ | 3,43 × 10⁻⁴ |
+| E4 | 1,36 × 10⁻¹ | 3,29 × 10⁻⁴ |
+| E5 | 1,36 × 10⁻¹ | 3,45 × 10⁻⁴ |
+
+## Conclusão
+
+O erro do Euler Explícito no sistema completo é desprezível nos dois tamanhos de gota. O erro da simplificação exponencial é muito maior (13,6% para 30 µm) e compromete a solução para gotas pequenas; ela só é segura para gotas grandes e, mesmo assim, economiza pouco tempo. Ou seja, a perda de acurácia vem da simplificação da física, e não do integrador mais simples. O Euler Explícito é mais barato que o SSPRK3 (uma avaliação do sistema por passo, contra três), e o controle adaptativo PID foi a estratégia de passo mais econômica. **O experimento recomendado é o E2** (Euler Explícito no sistema completo com passo adaptativo PID): mantém a acurácia do modelo completo e foi o mais rápido de todos, sem precisar simplificar a física.
+
+## Errata
+
+Na abertura do Capítulo 3 (página 48), o texto diz que o SCONTROL usa passo fixo Δt = 10⁻³ s. O passo usado nos resultados é **Δt = 10⁻⁴ s**, como está na Seção 3.3 e nos scripts `SCONTROL_30.py` e `SCONTROL_500.py`.
+
+## Arquivos
+
+- `codigos/`: um script por experimento e raio (`SCONTROL`, `ECONTROL` e `E1` a `E5`, com final `_30` ou `_500`), `all_30.py` e `all_500.py` (todos juntos), `Figura5.py` (modelo completo × simplificado) e os módulos físicos.
+- `figuras_relatorio/`: gráficos do texto, capturas dos tempos de execução (`Tabela_3.png` para 30 µm e `Tabela_4.png` para 500 µm) e `Motivo_Figura_6.png` (teste com Δt = 10⁻³ s, em que E1 e E4 divergem).
+- `relatorio/`: texto do TCC em PDF.
